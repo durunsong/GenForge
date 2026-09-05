@@ -67,11 +67,16 @@ Author and maintainer: [durunsong](https://github.com/durunsong).
 |----|--------------|-------|
 | Windows | `GenForge-*-win-x64.exe` | NSIS installer, auto-update enabled |
 | Windows | `GenForge-*-portable.exe` | Portable; manual updates |
+| Windows | `GenForge-*-win-x64.zip` | Extract and run; manual updates |
 | macOS | `GenForge-*-mac-universal.dmg` | Intel + Apple Silicon |
 | Linux | `GenForge-*-linux-x64.AppImage` | Recommended, auto-update |
 | Linux | `GenForge-*-linux-x64.deb` | Debian / Ubuntu |
 
 3. Install and launch
+
+Use the [latest release](https://github.com/durunsong/GenForge/releases/latest) download table or its **Assets** list. No Node.js installation is required. GitHub's `Source code (zip/tar.gz)` archives are source code, not installers. The latest-release link may return 404 until the first release is published.
+
+Each release includes `SHA256SUMS.txt`. Verify downloads using `Get-FileHash` on Windows, `shasum -a 256` on macOS, or `sha256sum` on Linux. The `latest*.yml` and `.blockmap` files are updater resources, not installers.
 
 ### First launch on macOS
 
@@ -152,7 +157,7 @@ API keys are stored locally only; they are not uploaded to this project’s serv
 |---------|-------------|
 | Windows NSIS installer | ✅ |
 | Windows portable | ❌ Use the installer or download from Releases |
-| macOS (dmg + zip) | ✅ |
+| macOS (dmg + zip) | Requires code signing; update current unsigned builds manually |
 | Linux AppImage | ✅ |
 | Linux deb | Prefer manual upgrade |
 
@@ -164,19 +169,30 @@ Use **Check for updates** in Settings. When a new version is found, confirm to d
 
 ### Recommended: tag → CI builds all platforms
 
-1. Bump `version` in `package.json` (e.g. `1.0.0` → `1.0.1`)
-2. Commit and tag:
+The workflow is `.github/workflows/release.yml`. Pushing source code alone does not produce installers. Push a `vX.Y.Z` tag to publish a stable release; the tag, `package.json` and `package-lock.json` versions must match. Prerelease versions are not supported by this workflow.
+
+1. For subsequent releases, run `npm version patch --no-git-tag-version` to update both version files. The first release can use the current `1.0.2`.
+2. Review and commit the release files, then tag (first-release example):
 
 ```bash
-git add .
-git commit -m "release: v1.0.1"
-git tag v1.0.1
-git push origin main
-git push origin v1.0.1
+# Review git diff and commit only the intended release files first
+git tag v1.0.2
+git push origin v1.0.2
 ```
 
-3. GitHub Actions builds on **Windows / macOS / Linux** and publishes one Release
-4. Users on older installs get an update prompt → download → restart
+3. Monitor **Actions → Release**. CI validates the version and builds Windows EXE / portable / ZIP, macOS universal DMG / ZIP, and Linux AppImage / DEB in parallel.
+4. Only after all platforms succeed, CI verifies packages, updater manifests and hashes, then generates download links, installation instructions, checksums and GitHub release notes. Assets are uploaded to a draft before the release becomes public.
+5. Windows installer and Linux AppImage users can update in-app. Current unsigned macOS builds require manual upgrades.
+
+A platform failure prevents publication. An upload failure leaves a draft that can be retried through Actions. Published versions cannot be overwritten; bump the version instead. CI uses the built-in `GITHUB_TOKEN`; no personal token is needed. Enable Actions and allow the workflow to write releases in repository settings.
+
+### Test packaging without publishing
+
+After committing and pushing the workflow, open **Actions → Release → Run workflow**, select a branch, and leave `publish` unchecked. Download `genforge-platform-win/mac/linux` or the combined `genforge-release` from the run's **Artifacts** section (14-day retention; GitHub login usually required). The included release notes are a preview; their public download links work after publication.
+
+To publish manually, select an existing `vX.Y.Z` tag containing this workflow and enable `publish`. Publishing from a branch is rejected. Keep the uploaded `latest*.yml`, ZIP and `.blockmap` updater resources.
+
+Release checks: `npm run test:release`. Version-only check: `node scripts/prepare-release.cjs v1.0.2`.
 
 ### Local package (no publish)
 
@@ -197,7 +213,7 @@ npm run release:mac
 npm run release:linux
 ```
 
-Requires `gh` login or `GH_TOKEN`. For full cross-platform releases, prefer tag + Actions.
+Local publishing requires an explicit `GH_TOKEN`; logging into `gh` alone does not pass it to electron-builder. These commands publish only the local platform and bypass the complete-release checks. Prefer tag + Actions for official releases.
 
 ---
 

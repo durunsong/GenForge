@@ -1,6 +1,6 @@
 {
   "name": "genforge",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "GenForge 多模型 AI 图像创作工作台",
   "main": "dist/main/main.js",
   "author": "durunsong",
@@ -15,6 +15,7 @@
     "url": "https://github.com/durunsong/GenForge/issues"
   },
   "scripts": {
+    "test:release": "node --test scripts/check-release.cjs",
     "build:main": "tsc -p tsconfig.main.json",
     "build:renderer": "node scripts/build-renderer.mjs",
     "build:icons": "node scripts/generate-icons.mjs",
@@ -48,9 +49,6 @@
     "asar": true,
     "npmRebuild": false,
     "nodeGypRebuild": false,
-    "electronDownload": {
-      "mirror": "https://npmmirror.com/mirrors/electron/"
-    },
     "publish": [
       {
         "provider": "github",

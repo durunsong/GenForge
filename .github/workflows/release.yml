@@ -7,22 +7,49 @@ on:
   workflow_dispatch:
     inputs:
       publish:
-        description: 'Publish artifacts to GitHub Releases (requires package.json version match / existing draft or creates release from version)'
+        description: 'Publish a stable release (select an existing vX.Y.Z tag; false builds downloadable test artifacts only)'
         type: boolean
         required: false
         default: false
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: release-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
+  validate:
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.version.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Validate version and release ref
+        id: version
+        shell: bash
+        env:
+          PUBLISH: ${{ github.event_name == 'push' || inputs.publish }}
+        run: |
+          tag="v$(node -p 'require("./package.json").version')"
+          if [[ "$GITHUB_REF_TYPE" == "tag" ]]; then
+            tag="$GITHUB_REF_NAME"
+          elif [[ "$PUBLISH" == "true" ]]; then
+            echo 'Publishing requires an existing vX.Y.Z tag, not a branch.' >&2
+            exit 1
+          fi
+          node scripts/prepare-release.cjs "$tag"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+
   build:
+    needs: validate
     name: Build (${{ matrix.platform }})
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
     strategy:
       fail-fast: false
       matrix:
@@ -31,71 +58,99 @@ jobs:
             platform: win
           - os: macos-latest
             platform: mac
-          - os: ubuntu-latest
+          - os: ubuntu-22.04
             platform: linux
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
-
       - name: Install dependencies
         run: npm ci
-        env:
-          ELECTRON_MIRROR: https://npmmirror.com/mirrors/electron/
-
-      - name: Prepare winCodeSign cache (skip symlink privilege issues)
-        if: matrix.platform == 'win'
-        shell: pwsh
-        run: |
-          $cache = Join-Path $env:LOCALAPPDATA "electron-builder\Cache\winCodeSign"
-          New-Item -ItemType Directory -Force -Path $cache | Out-Null
-          $archive = Join-Path $cache "winCodeSign-2.6.0.7z"
-          $dest = Join-Path $cache "winCodeSign-2.6.0"
-          if (-not (Test-Path $dest)) {
-            Invoke-WebRequest -Uri "https://npmmirror.com/mirrors/electron-builder-binaries/winCodeSign-2.6.0/winCodeSign-2.6.0.7z" -OutFile $archive
-            $seven = "node_modules\7zip-bin\win\x64\7za.exe"
-            if (Test-Path $seven) {
-              & $seven x -y -bd $archive "-o$dest" | Out-Null
-            }
-          }
-
-      - name: Install Linux packaging deps
+      - name: Check release preparation
+        run: npm run test:release
+      - name: Install Linux packaging dependencies
         if: matrix.platform == 'linux'
         run: |
           sudo apt-get update
           sudo apt-get install -y fakeroot dpkg
-
-      - name: Resolve publish mode
-        id: mode
-        shell: bash
-        run: |
-          if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
-            echo "publish=always" >> "$GITHUB_OUTPUT"
-          elif [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ inputs.publish }}" == "true" ]]; then
-            echo "publish=always" >> "$GITHUB_OUTPUT"
-          else
-            echo "publish=never" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Build desktop package
-        run: npm run build && npx electron-builder --${{ matrix.platform }} --publish ${{ steps.mode.outputs.publish }}
+      - name: Build desktop packages without publishing
+        run: npm run dist:${{ matrix.platform }}
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ELECTRON_MIRROR: https://npmmirror.com/mirrors/electron/
-          ELECTRON_BUILDER_BINARIES_MIRROR: https://npmmirror.com/mirrors/electron-builder-binaries/
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
-
-      - name: Upload artifacts
-        if: steps.mode.outputs.publish == 'never'
+      - name: Upload packages and update metadata
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.platform }}-build
+          name: genforge-platform-${{ matrix.platform }}
+          retention-days: 14
+          if-no-files-found: error
           path: |
-            release/*.*
-          if-no-files-found: warn
+            release/GenForge-*.exe
+            release/GenForge-*.zip
+            release/GenForge-*.dmg
+            release/GenForge-*.AppImage
+            release/GenForge-*.deb
+            release/GenForge-*.blockmap
+            release/latest*.yml
+
+  release:
+    needs: [validate, build]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: genforge-platform-*
+          merge-multiple: true
+          path: release
+      - name: Verify complete release and generate download table
+        env:
+          RELEASE_TAG: ${{ needs.validate.outputs.tag }}
+        run: node scripts/prepare-release.cjs "$RELEASE_TAG" release
+      - uses: actions/upload-artifact@v4
+        with:
+          name: genforge-release
+          path: release/
+          if-no-files-found: error
+          retention-days: 14
+      - name: Publish only after all assets are uploaded to a draft
+        if: github.event_name == 'push' || inputs.publish
+        uses: actions/github-script@v7
+        env:
+          RELEASE_TAG: ${{ needs.validate.outputs.tag }}
+        with:
+          script: |
+            const fs = require('node:fs');
+            const { owner, repo } = context.repo;
+            const tag = process.env.RELEASE_TAG;
+            let release;
+            try {
+              release = (await github.rest.repos.getReleaseByTag({ owner, repo, tag })).data;
+              if (!release.draft) throw new Error(`${tag} is already published. Bump the version instead of replacing released binaries.`);
+            } catch (error) {
+              if (error.status !== 404) throw error;
+            }
+            const generated = await github.rest.repos.generateReleaseNotes({ owner, repo, tag_name: tag });
+            const body = fs.readFileSync('release/RELEASE_NOTES.md', 'utf8') + '\n' + generated.data.body;
+            if (!release) {
+              release = (await github.rest.repos.createRelease({ owner, repo, tag_name: tag, name: `GenForge ${tag}`, body, draft: true, prerelease: false })).data;
+            }
+            const release_id = release.id;
+            // A failed run leaves a draft; retry replaces only assets of that draft.
+            const existing = await github.paginate(github.rest.repos.listReleaseAssets, { owner, repo, release_id });
+            const assets = JSON.parse(fs.readFileSync('release/release-assets.json', 'utf8'));
+            for (const name of assets) {
+              const previous = existing.find(asset => asset.name === name);
+              if (previous) await github.rest.repos.deleteReleaseAsset({ owner, repo, asset_id: previous.id });
+              const data = fs.readFileSync(`release/${name}`);
+              await github.rest.repos.uploadReleaseAsset({ owner, repo, release_id, name, data, headers: { 'content-type': 'application/octet-stream', 'content-length': data.length } });
+            }
+            await github.rest.repos.updateRelease({ owner, repo, release_id, name: `GenForge ${tag}`, body, draft: false, prerelease: false, make_latest: 'legacy' });

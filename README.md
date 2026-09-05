@@ -60,18 +60,23 @@
 
 ## 下载安装
 
-1. 打开 [Releases](https://github.com/durunsong/GenForge/releases)
+1. 打开 [最新版本下载](https://github.com/durunsong/GenForge/releases/latest)（[全部版本](https://github.com/durunsong/GenForge/releases)）
 2. 按系统下载对应安装包：
 
 | 系统 | 推荐下载 | 说明 |
 |------|----------|------|
 | Windows | `GenForge-*-win-x64.exe` | NSIS 安装版，可自动更新 |
 | Windows | `GenForge-*-portable.exe` | 便携版，需手动下载新版本 |
+| Windows | `GenForge-*-win-x64.zip` | 解压后运行，需手动升级 |
 | macOS | `GenForge-*-mac-universal.dmg` | Intel + Apple Silicon 通用包 |
 | Linux | `GenForge-*-linux-x64.AppImage` | 推荐，可自动更新 |
 | Linux | `GenForge-*-linux-x64.deb` | Debian / Ubuntu 安装包 |
 
 3. 安装后打开即可使用
+
+普通用户无需安装 Node.js 或下载源码。Release 正文会提供按系统分类的直接下载链接；下方 **Assets** 也包含相同安装包。`Source code (zip/tar.gz)` 是 GitHub 自动生成的源码压缩包，不是安装包。首次发布完成前，最新版本链接可能显示 404。
+
+每次发布还提供 `SHA256SUMS.txt`，可用 Windows `Get-FileHash`、macOS `shasum -a 256` 或 Linux `sha256sum` 校验下载文件。`latest*.yml` 和 `.blockmap` 是应用更新资源，无需手动安装。
 
 ### macOS 首次打开
 
@@ -152,7 +157,7 @@ API Key 仅保存在本机，不会上传到本项目服务器。
 |--------|----------|
 | Windows NSIS 安装版 | ✅ |
 | Windows 便携版 | ❌ 请用安装版，或手动下载 Releases |
-| macOS（dmg + zip） | ✅ |
+| macOS（dmg + zip） | 需要代码签名；当前未签名版本请手动升级 |
 | Linux AppImage | ✅ |
 | Linux deb | 建议手动升级 |
 
@@ -164,19 +169,30 @@ API Key 仅保存在本机，不会上传到本项目服务器。
 
 ### 推荐：打 tag 触发三端自动打包
 
-1. 修改 `package.json` 的 `version`（例如 `1.0.0` → `1.0.1`）
-2. 提交并打 tag：
+工作流位于 `.github/workflows/release.yml`。上传源码本身不会生成安装包；推送 `vX.Y.Z` 标签才会触发正式发布。当前流程只发布稳定版本，标签必须与 `package.json`、`package-lock.json` 的版本一致。
+
+1. 后续升级先执行 `npm version patch --no-git-tag-version`，同步更新两个版本文件；首次发布可直接使用当前 `1.0.2`。
+2. 检查并提交本次发布涉及的文件，再打 tag（下面以首次发布为例）：
 
 ```bash
-git add .
-git commit -m "release: v1.0.1"
-git tag v1.0.1
-git push origin main
-git push origin v1.0.1
+# 先检查 git diff，并单独提交本次发布文件
+git tag v1.0.2
+git push origin v1.0.2
 ```
 
-3. GitHub Actions 会在 **Windows / macOS / Linux** 上并行打包，并发布到同一 Release
-4. 用户打开旧版 → 弹窗提示更新 → 下载并重启
+3. 在仓库 **Actions → Release** 查看进度：先验证版本，再并行生成 Windows EXE / 便携版 / ZIP、macOS 通用 DMG / ZIP、Linux AppImage / DEB。
+4. 三端全部成功后，检查安装包、更新元数据及哈希，生成下载表格、安装说明、SHA-256 校验文件和 GitHub 更新记录。全部资源上传至草稿成功后，才公开 Release。
+5. Windows 安装版与 Linux AppImage 可使用应用内更新；macOS 当前未签名版本请从 Release 手动升级。
+
+任一平台失败不会发布不完整版本；上传失败保留草稿，可在 Actions 重跑。已公开的同名版本不会被覆盖，请提升版本号。GitHub Actions 使用内置 `GITHUB_TOKEN`，无需添加个人令牌；仓库须启用 Actions 并允许工作流写入 Releases。
+
+### 先试打包，不公开发布
+
+提交并推送工作流后，进入 **Actions → Release → Run workflow**，选择分支，保持 `publish` 为 `false`。成功后在运行页面的 **Artifacts** 下载 `genforge-platform-win/mac/linux` 或汇总包 `genforge-release`（保留 14 天，通常需要登录 GitHub）。汇总包中的发布说明用于预览，正式下载链接在公开 Release 后生效。
+
+手动正式发布时必须选择已存在且包含这套工作流的 `vX.Y.Z` 标签，并勾选 `publish`；不允许从分支发布。自动更新依赖的 `latest*.yml`、ZIP 和 `.blockmap` 会随安装包一同上传，请勿删除。
+
+发布检查：`npm run test:release`；只检查版本：`node scripts/prepare-release.cjs v1.0.2`。
 
 ### 本地打包（不发布）
 
@@ -197,7 +213,7 @@ npm run release:mac
 npm run release:linux
 ```
 
-需要本机已登录 `gh`，或设置 `GH_TOKEN`。跨平台完整发版请用打 tag + Actions。
+本地发布需要显式提供 `GH_TOKEN`，仅登录 `gh` 不会自动传给 electron-builder。本地发布命令只上传当前平台，绕过三端完整性检查；正式完整发版推荐使用上面的标签 + Actions 流程。
 
 ---
 
