@@ -51,69 +51,54 @@
         <!-- 创作工具分组 -->
         <div class="nav-section-title">创作工具</div>
 
-        <div class="nav-card xhs-nav-card" onclick="XHSCreator.open()">
-            <div class="nav-card-icon xhs-icon">
+        <button type="button" class="nav-card xhs-nav-card" onclick="XHSCreator.open()">
+            <span class="nav-card-icon xhs-icon" aria-hidden="true">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
                 </svg>
-            </div>
-            <div class="nav-card-content">
-                <div class="nav-card-title">XHS 灵感实验室</div>
-                <div class="nav-card-desc">小红书风格内容创作</div>
-            </div>
-        </div>
+            </span>
+            <span class="nav-card-title">XHS 灵感实验室</span>
+        </button>
 
-        <div class="nav-card banana-nav-card" onclick="BananaTool.open()">
-            <div class="nav-card-icon banana-icon">
+        <button type="button" class="nav-card banana-nav-card" onclick="BananaTool.open()">
+            <span class="nav-card-icon banana-icon" aria-hidden="true">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
                 </svg>
-            </div>
-            <div class="nav-card-content">
-                <div class="nav-card-title">提示词快查</div>
-                <div class="nav-card-desc">快速查找优质提示词</div>
-            </div>
-        </div>
+            </span>
+            <span class="nav-card-title">提示词快查</span>
+        </button>
 
-        <div class="nav-card custom-nav-card" onclick="CustomPromptTool.open()">
-            <div class="nav-card-icon custom-icon">
+        <button type="button" class="nav-card custom-nav-card" onclick="CustomPromptTool.open()">
+            <span class="nav-card-icon custom-icon" aria-hidden="true">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
                     <polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>
                 </svg>
-            </div>
-            <div class="nav-card-content">
-                <div class="nav-card-title">我的提示词</div>
-                <div class="nav-card-desc">管理个人提示词库</div>
-            </div>
-        </div>
+            </span>
+            <span class="nav-card-title">我的提示词</span>
+        </button>
 
-        <div class="nav-card feature-nav-card" onclick="activateStickerMode()">
-            <div class="nav-card-icon feature-icon">
+        <button type="button" class="nav-card feature-nav-card" onclick="activateStickerMode()">
+            <span class="nav-card-icon feature-icon" aria-hidden="true">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/>
                     <line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/>
                 </svg>
-            </div>
-            <div class="nav-card-content">
-                <div class="nav-card-title">制作表情包</div>
-                <div class="nav-card-desc">快速生成表情包</div>
-            </div>
-        </div>
+            </span>
+            <span class="nav-card-title">制作表情包</span>
+        </button>
 
-        <div class="nav-card tool-nav-card" onclick="SlicerTool.openLocal()">
-            <div class="nav-card-icon tool-icon">
+        <button type="button" class="nav-card tool-nav-card" onclick="SlicerTool.openLocal()">
+            <span class="nav-card-icon tool-icon" aria-hidden="true">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/>
                     <line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/>
                     <line x1="8.12" y1="8.12" x2="12" y2="12"/>
                 </svg>
-            </div>
-            <div class="nav-card-content">
-                <div class="nav-card-title">图片切片</div>
-                <div class="nav-card-desc">九宫格切图工具</div>
-            </div>
-        </div>
+            </span>
+            <span class="nav-card-title">图片切片</span>
+        </button>
         <div style="padding:0 12px; font-size:11px; font-weight:600; color:#5f6368; margin-bottom:8px; text-transform:uppercase; letter-spacing:0.5px; margin-top: 10px; display: flex; justify-content: space-between; align-items: center;">
             <span>最近对话</span>
             <button onclick="clearAllSessions()" style="background: none; border: none; color: #d93025; cursor: pointer; font-size: 11px; padding: 2px 6px; border-radius: 4px; transition: background 0.2s;" onmouseover="this.style.background='#fce8e6'" onmouseout="this.style.background='none'" title="清除全部对话">
@@ -199,43 +184,67 @@
             <details class="provider-collapse">
                 <summary>API 渠道管理</summary>
                 <div class="provider-content">
-                    <label class="config-label" style="color:#1967d2;">当前使用渠道</label>
+                    <label for="provider-select" class="config-label">使用渠道</label>
                     <select id="provider-select" class="provider-selector" onchange="ProviderManager.select(this.value)">
-                        <option value="random">🎲 随机优选 (自动轮询)</option>
+                        <option value="random">随机优选 · 自动轮询</option>
                     </select>
-                    <label class="config-label" style="margin-top:10px;">渠道列表</label>
-                    <div id="provider-list" class="provider-list"></div>
+                    <div class="provider-list-heading">已保存渠道</div>
+                    <div id="provider-list" class="provider-list" aria-label="已保存渠道"></div>
+                    <div class="provider-form-heading">
+                        <span id="provider-form-title">新增渠道</span>
+                        <button type="button" class="provider-icon-btn" onclick="ProviderManager.clearForm()" aria-label="清空并新增渠道" title="清空并新增渠道">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M12 5v14M5 12h14"/></svg>
+                        </button>
+                    </div>
                     <div class="api-input-group">
                         <input type="hidden" id="p-id">
-                        <input type="text" id="p-name" placeholder="渠道名称 (如: 官方API)">
-                        <select id="p-type" class="provider-selector" style="margin-bottom:10px;" onchange="ProviderManager.handleTypeChange(this.value)">
-                            <option value="gemini">Gemini 原生接口</option>
-                            <option value="openai">OpenAI 兼容接口</option>
-                        </select>
-                        <div id="openai-mode-group" style="display:none; margin-bottom:10px;">
-                            <select id="p-openai-mode" class="provider-selector">
-                                <option value="chat">OpenAI Chat Completions（兼容旧逻辑）</option>
-                                <option value="images">OpenAI Images API（/v1/images/*）</option>
+                        <div class="provider-field">
+                            <label for="p-name">渠道名称</label>
+                            <input type="text" id="p-name" placeholder="例如：官方 API" autocomplete="off">
+                        </div>
+                        <div class="provider-field">
+                            <label for="p-type">接口类型</label>
+                            <select id="p-type" class="provider-selector" onchange="ProviderManager.handleTypeChange(this.value)">
+                                <option value="gemini">Gemini 原生接口</option>
+                                <option value="openai">OpenAI 兼容接口</option>
                             </select>
-                            <div style="font-size:11px; color:#666; margin-top:6px; line-height:1.5;">
-                                选择 Images API 后：无参考图走 <code>/v1/images/generations</code>，有参考图走 <code>/v1/images/edits</code>
+                        </div>
+                        <div id="openai-mode-group" style="display:none;">
+                            <div class="provider-field">
+                                <label for="p-openai-mode">接口模式</label>
+                                <select id="p-openai-mode" class="provider-selector">
+                                    <option value="chat">Chat Completions</option>
+                                    <option value="images">Images API</option>
+                                </select>
                             </div>
                         </div>
-                        <input type="text" id="p-host" placeholder="API Base URL (https://...)">
-                        <input type="password" id="p-key" placeholder="API Key (sk-...)">
-                        <select id="p-model-select" onchange="document.getElementById('p-model').value = this.value" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; margin-bottom: 8px;">
-                            <option value="">-- 选择预设模型或在下方自定义 --</option>
-                            <option value="gpt-image-2">gpt-image-2</option>
-                            <option value="gpt-image-1.5">gpt-image-1.5</option>
-                            <option value="gemini-2.5-flash-image">gemini-2.5-flash-image</option>
-                            <option value="gemini-3-pro-image-preview">gemini-3-pro-image-preview</option>
-                        </select>
-                        <input type="text" id="p-model" placeholder="Model (e.g. gpt-image-2 / gemini-3-pro-image-preview)">
+                        <div class="provider-field">
+                            <label for="p-host">Base URL</label>
+                            <input type="text" id="p-host" placeholder="https://api.example.com" spellcheck="false" autocomplete="off">
+                        </div>
+                        <div class="provider-field">
+                            <label for="p-key">API Key</label>
+                            <input type="password" id="p-key" placeholder="sk-..." autocomplete="off">
+                        </div>
+                        <div class="provider-field provider-field--model">
+                            <label for="p-model">模型名称</label>
+                            <div class="provider-model-fields">
+                                <select id="p-model-select" aria-label="预设模型" onchange="document.getElementById('p-model').value = this.value">
+                                    <option value="">选择预设</option>
+                                    <option value="gpt-image-2">gpt-image-2</option>
+                                    <option value="gpt-image-1.5">gpt-image-1.5</option>
+                                    <option value="gemini-2.5-flash-image">gemini-2.5-flash-image</option>
+                                    <option value="gemini-3-pro-image-preview">gemini-3-pro-image-preview</option>
+                                </select>
+                                <input type="text" id="p-model" placeholder="自定义模型 ID" spellcheck="false" autocomplete="off">
+                            </div>
+                        </div>
                     </div>
                     <div class="action-row">
-                        <button class="config-btn" onclick="ProviderManager.clearForm()">清空/新增</button>
-                        <button class="config-btn primary" onclick="ProviderManager.save()">保存渠道</button>
-                        <button class="config-btn danger" onclick="ProviderManager.del()">删除</button>
+                        <button type="button" class="config-btn primary" onclick="ProviderManager.save()">保存渠道</button>
+                        <button type="button" id="provider-delete-btn" class="provider-icon-btn danger" onclick="ProviderManager.del()" aria-label="删除渠道" title="删除渠道" disabled>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M3 6h18M19 6v14H5V6M9 6V3h6v3M10 10v6M14 10v6"/></svg>
+                        </button>
                     </div>
                 </div>
             </details>
@@ -329,14 +338,14 @@
     <!-- XHS Modal - V7 三栏布局 -->
     <div id="xhs-modal" class="xhs-modal">
         <div class="xhs-header">
-            <div class="xhs-toggle-btn" onclick="toggleXHSSidebar()">
+            <button type="button" class="xhs-toggle-btn" onclick="toggleXHSSidebar()" aria-label="文案设置" title="文案设置">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
-            </div>
+            </button>
             <div class="xhs-title-bar">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:#ff2e4d;"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
                 <span style="margin-left:8px;">XHS 灵感实验室</span>
             </div>
-            <div class="xhs-toggle-btn" onclick="XHSCreator.close()">✕</div>
+            <button type="button" class="xhs-toggle-btn" onclick="XHSCreator.close()" aria-label="关闭灵感实验室" title="关闭灵感实验室"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.75"><path d="m6 6 12 12M6 18 18 6"/></svg></button>
         </div>
 
         <div class="xhs-sidebar-overlay" id="xhs-sidebar-overlay" onclick="toggleXHSSidebar()"></div>
@@ -351,15 +360,15 @@
                         </summary>
                         <div style="margin-top:12px;">
                             <div class="config-group">
-                                <label>API Base URL</label>
+                                <label for="xhs-text-api-host">API Base URL</label>
                                 <input class="xhs-input" id="xhs-text-api-host" placeholder="https://api.openai.com">
                             </div>
                             <div class="config-group">
-                                <label>API Key</label>
+                                <label for="xhs-text-api-key">API Key</label>
                                 <input class="xhs-input" type="password" id="xhs-text-api-key" placeholder="sk-...">
                             </div>
                             <div class="config-group">
-                                <label>快速选择模型</label>
+                                <label for="xhs-text-model-quick">快速选择模型</label>
                                 <select id="xhs-text-model-quick" class="xhs-input" onchange="XHSCreator.quickSelectModel(this.value)">
                                     <option value="">选择常用模型...</option>
                                     <optgroup label="Google Gemini">
@@ -379,9 +388,9 @@
                                 </select>
                             </div>
                             <div class="config-group">
-                                <label>模型名称</label>
-                                <select class="xhs-input" id="xhs-text-model-select" onchange="document.getElementById('xhs-text-model').value = this.value" style="margin-bottom: 8px;">
-                                    <option value="">-- 选择预设模型或在下方自定义 --</option>
+                                <label for="xhs-text-model">模型名称</label>
+                                <select class="xhs-input" id="xhs-text-model-select" aria-label="文案预设模型" onchange="document.getElementById('xhs-text-model').value = this.value">
+                                    <option value="">选择预设</option>
                                     <option value="gemini-2.5-flash-image">gemini-2.5-flash-image</option>
                                     <option value="gemini-3-pro-image-preview">gemini-3-pro-image-preview</option>
                                 </select>
@@ -398,11 +407,6 @@
                                 </button>
                             </div>
                             <button class="xhs-save-btn" onclick="XHSCreator.saveTextSettings()">保存配置</button>
-                            <div style="font-size:11px;color:#888;margin-top:12px;line-height:1.4;">
-                                💡 提示：使用 OpenAI 兼容格式的 API<br>
-                                📌 文案生成独立配置，不影响绘图设置<br>
-                                ✨ 可将常用模型添加到快速选择列表
-                            </div>
                         </div>
                     </details>
                     <div class="xhs-section-label">
@@ -418,7 +422,7 @@
                 <div class="xhs-middle-content">
                     <div class="xhs-input-box">
                         <div class="xhs-section-label"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:4px;"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>灵感输入</div>
-                        <textarea class="xhs-textarea-lg" id="xhs-topic" placeholder="输入你的想法，例如："分析图片，生成复古风格的OOTD文案"..."></textarea>
+                        <textarea class="xhs-textarea-lg" id="xhs-topic" aria-label="灵感内容" placeholder="描述这次创作的主题..."></textarea>
 
                         <div class="xhs-upload-row">
                             <div class="xhs-upload-btn" onclick="document.getElementById('xhs-file-input').click()">
@@ -449,12 +453,12 @@
                 <div class="xhs-gallery-bar">
                     <div style="font-weight:700; color:#333; display:flex; align-items:center;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:6px;"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>分镜</div>
                     <div class="xhs-gallery-opts">
-                        <select id="xhs-paint-ratio" class="xhs-select">
+                        <select id="xhs-paint-ratio" class="xhs-select" aria-label="分镜比例">
                             <option value="3:4">3:4 (默认)</option><option value="1:1">1:1</option><option value="16:9">16:9</option>
                             <option value="9:16">9:16</option><option value="4:3">4:3</option><option value="3:2">3:2</option>
                             <option value="2:3">2:3</option><option value="21:9">21:9</option><option value="5:4">5:4</option><option value="4:5">4:5</option>
                         </select>
-                        <select id="xhs-paint-quality" class="xhs-select">
+                        <select id="xhs-paint-quality" class="xhs-select" aria-label="分镜画质">
                             <option value="1K">1K (标准)</option><option value="2K">2K (高清)</option><option value="4K">4K (超清)</option>
                         </select>
                         <button class="xhs-mini-btn" style="background:#1a73e8;color:white;border:none;height:36px;padding:0 16px;display:flex;align-items:center;gap:6px;" onclick="XHSCreator.startPainting()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>批量生成</button>
@@ -477,11 +481,11 @@
                     <span>GitHub</span>
                 </a>
             </div>
-            <div class="slice-close" onclick="BananaTool.close()">
+            <button type="button" class="slice-close" onclick="BananaTool.close()" aria-label="关闭提示词快查" title="关闭提示词快查">
                 <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-            </div>
+            </button>
         </div>
-        <div style="flex: 1; display: flex; flex-direction: column; max-width: 1200px; margin: 0 auto; width: 100%; padding: 24px; overflow-y: auto; padding-top: 80px;">
+        <div class="tool-page-content">
             <div class="banana-search-wrapper">
                 <svg class="banana-search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <circle cx="11" cy="11" r="8"></circle>
@@ -490,12 +494,12 @@
                 <input type="text" class="banana-search-input" placeholder="搜索关键词 (标题、提示词、分类)..." oninput="BananaTool.handleSearch(this.value)">
             </div>
             <div class="banana-tabs">
-                <div class="banana-tab active" onclick="BananaTool.filter('all', this)">全部</div>
-                <div class="banana-tab" onclick="BananaTool.filter('generate', this)">绘图</div>
-                <div class="banana-tab" onclick="BananaTool.filter('edit', this)">生活</div>
-                <div class="banana-tab" onclick="BananaTool.filter('nsfw', this)">NSFW</div>
-                <div class="banana-tab" onclick="BananaTool.filter('study', this)">学习</div>
-                <div class="banana-tab" onclick="BananaTool.filter('work', this)">工作</div>
+                <button type="button" class="banana-tab active" onclick="BananaTool.filter('all', this)">全部</button>
+                <button type="button" class="banana-tab" onclick="BananaTool.filter('generate', this)">绘图</button>
+                <button type="button" class="banana-tab" onclick="BananaTool.filter('edit', this)">生活</button>
+                <button type="button" class="banana-tab" onclick="BananaTool.filter('nsfw', this)">NSFW</button>
+                <button type="button" class="banana-tab" onclick="BananaTool.filter('study', this)">学习</button>
+                <button type="button" class="banana-tab" onclick="BananaTool.filter('work', this)">工作</button>
             </div>
             <div id="banana-loading" style="text-align:center; padding:40px; color:#666;">
                 <div class="loading-spinner" style="margin:0 auto 10px auto;"></div>
@@ -516,24 +520,24 @@
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:8px; color:#9333ea;"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
                 <span>我的提示词</span>
             </div>
-            <div class="slice-close" onclick="CustomPromptTool.close()">
+            <button type="button" class="slice-close" onclick="CustomPromptTool.close()" aria-label="关闭我的提示词" title="关闭我的提示词">
                 <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-            </div>
+            </button>
         </div>
-        <div style="flex: 1; display: flex; flex-direction: column; max-width: 1200px; margin: 0 auto; width: 100%; padding: 24px; overflow-y: auto; padding-top: 80px;">
+        <div class="tool-page-content">
             <!-- 添加/编辑区域 -->
-            <div style="background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
+            <div class="custom-prompt-editor">
                 <div style="font-size: 14px; font-weight: 600; color: #333; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                     <span id="custom-prompt-form-title">新建提示词</span>
                 </div>
                 <input type="hidden" id="custom-prompt-edit-id" value="">
                 <div style="margin-bottom: 12px;">
-                    <label style="display: block; font-size: 12px; color: #666; margin-bottom: 6px;">标题</label>
+                    <label for="custom-prompt-title" style="display: block; font-size: 12px; color: #666; margin-bottom: 6px;">标题</label>
                     <input type="text" id="custom-prompt-title" class="xhs-input" placeholder="例如：人物肖像生成" style="margin-bottom: 0;">
                 </div>
                 <div style="margin-bottom: 12px;">
-                    <label style="display: block; font-size: 12px; color: #666; margin-bottom: 6px;">提示词内容</label>
+                    <label for="custom-prompt-content" style="display: block; font-size: 12px; color: #666; margin-bottom: 6px;">提示词内容</label>
                     <textarea id="custom-prompt-content" class="xhs-textarea-lg" placeholder="输入你的提示词内容..." style="min-height: 80px; border: 1px solid #dadce0; border-radius: 6px; padding: 10px;"></textarea>
                 </div>
                 <div style="display: flex; gap: 10px;">
@@ -578,9 +582,9 @@
                 <svg width="22" height="22" style="margin-right:8px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/><line x1="8.12" y1="8.12" x2="12" y2="12"/></svg>
                 图片分割工厂
             </div>
-            <div class="slice-close" onclick="SlicerTool.close()">
+            <button type="button" class="slice-close" onclick="SlicerTool.close()" aria-label="关闭图片切片" title="关闭图片切片">
                 <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-            </div>
+            </button>
         </div>
         <div class="slice-scroll-area">
             <div class="slice-toolbar">
@@ -600,19 +604,19 @@
                     </div>
                 </div>
                 <button class="slice-action-btn secondary" id="slice-clear-btn">清空辅助线</button>
-                <button class="slice-action-btn primary" id="slice-process-btn" disabled>⚡ 生成切片</button>
+                <button class="slice-action-btn primary" id="slice-process-btn" disabled>生成切片</button>
                 <button class="slice-action-btn download-all" id="slice-download-all-btn" disabled onclick="SlicerTool.downloadAll()">
                     <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                     一键打包下载
                 </button>
             </div>
             <div id="slice-editor-container">
-                <div id="slice-empty-msg" onclick="document.getElementById('slice-file-input').click()">
+                <button type="button" id="slice-empty-msg" onclick="document.getElementById('slice-file-input').click()">
                     <div style="margin-bottom:10px;">
                         <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#dadce0" stroke-width="1.5"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
                     </div>
-                    <div>点击上传本地图片</div>
-                </div>
+                    <span>选择图片</span>
+                </button>
                 <img id="slice-source-image" src="" alt="Source" style="display:none;" crossorigin="anonymous">
                 <div id="slice-overlay-canvas"></div>
             </div>
@@ -626,7 +630,7 @@
     </div>
     
     <!-- Toast 提示 -->
-    <div id="toast" class="toast-msg"></div>
+    <div id="toast" class="toast-msg" role="status" aria-live="polite"></div>
 
     <!-- 全局加载遮罩 -->
     <div id="global-loading" class="global-loading">

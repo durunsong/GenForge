@@ -42,7 +42,8 @@ const { chromium } = require('playwright');
     assert(!(await page.locator('#context-options').isVisible()));
     await page.locator('#context-toggle').check();
     assert(await page.locator('#context-options').isVisible());
-    await page.locator('#context-count').selectOption('10');
+    await page.locator('#context-count-trigger').click();
+    await page.getByRole('option', { name: '最近 10 条对话', exact: true }).click();
     await page.reload();
     await page.waitForSelector('.session-item');
     assert(await page.locator('#stream-toggle').isChecked());
@@ -59,7 +60,7 @@ const { chromium } = require('playwright');
     assert(await page.locator('#update-status-text').isVisible(), 'Update errors must remain visible');
     assert.equal(await page.locator('#update-status-text').textContent(), 'Update service unavailable');
     await page.locator('.provider-collapse > summary').click();
-    assert(await page.locator('#provider-select').isVisible());
+    assert(await page.locator('#provider-select-trigger').isVisible());
     await page.locator('.provider-collapse > summary').click();
 
     await page.reload();

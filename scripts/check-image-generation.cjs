@@ -78,11 +78,12 @@ test('Images API sends the selected count and keeps every result in history and 
 
 test('Count control defaults to one, persists choices, and rejects invalid stored counts', async t => {
   const page = await openApp(t);
-  const control = page.getByLabel('生成数量', { exact: true });
-  await control.waitFor({ timeout: 3000 });
+  const control = page.locator('#image-count');
+  await page.locator('#image-count-trigger').waitFor({ timeout: 3000 });
   assert.equal(await control.inputValue(), '1');
   for (const count of ['2', '3', '4']) {
-    await control.selectOption(count);
+    await page.locator('#image-count-trigger').click();
+    await page.getByRole('option', { name: `${count} 张`, exact: true }).click();
     assert.equal(await page.evaluate(() => state.imageCount), Number(count));
   }
   await page.reload();

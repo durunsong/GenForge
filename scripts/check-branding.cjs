@@ -164,6 +164,10 @@ test('Desktop startup reopens legacy settings and conversations in an isolated p
     assert.equal(await page.evaluate(() => ProviderManager.activeId), 'legacy');
     assert.equal(await page.evaluate(async () => (await getAllSessions())[0].title), 'Saved conversation');
     assert.equal(await page.evaluate(async () => (await getSessionMessages(currentSessionId))[0].content), 'Saved message');
+    assert.equal(await page.locator('.app-select-trigger').count(), await page.locator('select').count());
+    await page.locator('#image-count-trigger').click();
+    await page.getByRole('option', { name: '2 张', exact: true }).click();
+    assert.equal(await page.locator('#image-count').inputValue(), '2', 'Shared popovers must work in the shipped Electron runtime');
     assert(!fs.existsSync(path.join(temporaryRoot, 'GenForge')), 'Upgrade must not create an empty replacement profile');
     await desktop.close();
     desktop = undefined;

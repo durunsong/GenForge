@@ -1004,9 +1004,7 @@ function escapeHtml(text) { return text.replace(/[&<>"']/g, m => ({ '&': '&amp;'
                 group.innerHTML = '';
             } else {
                 group.style.display = 'block';
-                group.innerHTML = customModels.map(model => 
-                    `<option value="${model}">${model}</option>`
-                ).join('');
+                group.replaceChildren(...customModels.map(model => new Option(model, model)));
             }
         },
         
@@ -1800,6 +1798,163 @@ function escapeHtml(text) { return text.replace(/[&<>"']/g, m => ({ '&': '&amp;'
         }
     };
 
+    // Native selects remain the value source; popovers provide consistent desktop menus.
+    const SelectUI = {
+        controls: [],
+        sync() { this.controls.forEach(update => update()); },
+        init() {
+            if (this.controls.length) return;
+            document.querySelectorAll('select').forEach(select => {
+                const label = document.querySelector(`label[for="${select.id}"]`);
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.id = `${select.id}-trigger`;
+                button.className = 'app-select-trigger';
+                button.setAttribute('role', 'combobox');
+                button.setAttribute('aria-haspopup', 'listbox');
+                button.setAttribute('aria-expanded', 'false');
+                const value = document.createElement('span');
+                value.id = `${select.id}-value`;
+                value.className = 'app-select-value';
+                button.appendChild(value);
+                if (label) {
+                    label.id = `${select.id}-label`;
+                    label.htmlFor = button.id;
+                    button.setAttribute('aria-labelledby', `${label.id} ${value.id}`);
+                } else {
+                    button.setAttribute('aria-label', select.getAttribute('aria-label') || select.id);
+                }
+                const menu = document.createElement('div');
+                menu.id = `${select.id}-menu`;
+                menu.className = 'app-select-menu';
+                menu.setAttribute('popover', 'auto');
+                menu.setAttribute('role', 'listbox');
+                menu.setAttribute('aria-label', label?.textContent || select.getAttribute('aria-label') || select.id);
+                button.setAttribute('aria-controls', menu.id);
+                select.classList.add('app-native-select');
+                select.after(button);
+                document.body.appendChild(menu);
+                const update = () => {
+                    value.textContent = select.selectedOptions[0]?.textContent || select.options[0]?.textContent || '';
+                    button.title = value.textContent;
+                    button.disabled = select.disabled;
+                    if (!label) button.setAttribute('aria-label', `${select.getAttribute('aria-label') || select.id}: ${value.textContent}`);
+                };
+                this.controls.push(update);
+                select.addEventListener('change', update);
+                update();
+                let options = [], rows = [], active = 0, search = '', lastTyped = 0;
+                const isOpen = () => menu.matches(':popover-open');
+                const close = () => { if (isOpen()) menu.hidePopover(); };
+                const disabled = option => option.disabled || option.parentElement.disabled;
+                const highlight = index => {
+                    active = index;
+                    rows.forEach((row, i) => row.classList.toggle('is-active', i === active));
+                    const row = rows[active];
+                    if (row) {
+                        button.setAttribute('aria-activedescendant', row.id);
+                        row.scrollIntoView({ block: 'nearest' });
+                    }
+                };
+                const choose = index => {
+                    if (!options[index] || disabled(options[index])) return;
+                    select.value = options[index].value;
+                    select.dispatchEvent(new Event('change', { bubbles: true }));
+                    close();
+                    button.focus();
+                };
+                const open = () => {
+                    if (isOpen() || button.disabled) return;
+                    options = Array.from(select.options).filter(option => !option.hidden && !option.parentElement.hidden && option.parentElement.style.display !== 'none');
+                    menu.replaceChildren();
+                    rows = [];
+                    const groups = new Map();
+                    options.forEach((option, index) => {
+                        const row = document.createElement('div');
+                        row.id = `${menu.id}-${index}`;
+                        row.className = 'app-select-option';
+                        row.setAttribute('role', 'option');
+                        row.setAttribute('aria-selected', String(option.selected));
+                        row.setAttribute('aria-disabled', String(Boolean(disabled(option))));
+                        row.innerHTML = '<span></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg>';
+                        row.firstElementChild.textContent = option.textContent;
+                        row.addEventListener('pointerdown', event => event.preventDefault());
+                        row.addEventListener('click', () => choose(index));
+                        let parent = menu;
+                        if (option.parentElement.tagName === 'OPTGROUP') {
+                            const group = option.parentElement;
+                            if (!groups.has(group)) {
+                                const container = document.createElement('div');
+                                container.setAttribute('role', 'group');
+                                container.setAttribute('aria-label', group.label);
+                                const heading = document.createElement('div');
+                                heading.className = 'app-select-group';
+                                heading.setAttribute('aria-hidden', 'true');
+                                heading.textContent = group.label;
+                                container.appendChild(heading);
+                                menu.appendChild(container);
+                                groups.set(group, container);
+                            }
+                            parent = groups.get(group);
+                        }
+                        parent.appendChild(row);
+                        rows.push(row);
+                    });
+                    const rect = button.getBoundingClientRect();
+                    const width = Math.min(Math.max(rect.width, 240), window.innerWidth - 16);
+                    menu.style.width = `${width}px`;
+                    menu.style.left = `${Math.max(8, Math.min(rect.left, window.innerWidth - width - 8))}px`;
+                    menu.showPopover();
+                    const below = window.innerHeight - rect.bottom - 8;
+                    const above = rect.top - 8;
+                    const downward = below >= Math.min(menu.scrollHeight, 240) || below >= above;
+                    menu.style.maxHeight = `${Math.max(0, Math.min(240, downward ? below : above))}px`;
+                    menu.style.top = `${downward ? rect.bottom + 4 : rect.top - menu.getBoundingClientRect().height - 4}px`;
+                    button.setAttribute('aria-expanded', 'true');
+                    search = '';
+                    highlight(Math.max(0, options.findIndex(option => option.selected)));
+                };
+                menu.addEventListener('beforetoggle', event => {
+                    button.setAttribute('aria-expanded', String(event.newState === 'open'));
+                    if (event.newState === 'closed') {
+                        button.removeAttribute('aria-activedescendant');
+                    }
+                });
+                button.addEventListener('click', () => isOpen() ? close() : open());
+                button.addEventListener('keydown', event => {
+                    if (['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) {
+                        event.preventDefault();
+                        const wasOpen = isOpen();
+                        open();
+                        const enabled = options.map((option, index) => disabled(option) ? -1 : index).filter(index => index >= 0);
+                        if (!enabled.length) return;
+                        if (event.key === 'Home') highlight(enabled[0]);
+                        else if (event.key === 'End') highlight(enabled.at(-1));
+                        else if (wasOpen) highlight(enabled[(enabled.indexOf(active) + (event.key === 'ArrowDown' ? 1 : -1) + enabled.length) % enabled.length]);
+                    } else if ((event.key === 'Enter' || event.key === ' ') && isOpen()) {
+                        event.preventDefault();
+                        choose(active);
+                    } else if (event.key === 'Escape' || event.key === 'Tab') {
+                        close();
+                    } else if (event.key.length === 1 && !event.ctrlKey && !event.metaKey && !event.altKey && event.key !== ' ') {
+                        event.preventDefault();
+                        open();
+                        search = Date.now() - lastTyped > 700 ? event.key : search + event.key;
+                        lastTyped = Date.now();
+                        const index = options.findIndex(option => !disabled(option) && option.textContent.toLowerCase().startsWith(search.toLowerCase()));
+                        if (index >= 0) highlight(index);
+                    }
+                });
+                window.addEventListener('resize', close);
+                document.addEventListener('scroll', event => { if (!menu.contains(event.target)) close(); }, true);
+                new MutationObserver(() => {
+                    update();
+                    close();
+                }).observe(select, { childList: true, subtree: true, attributes: true, characterData: true });
+            });
+        }
+    };
+
     const ProviderManager={
         providers:[],
         activeId:'random',
@@ -1828,6 +1983,7 @@ function escapeHtml(text) { return text.replace(/[&<>"']/g, m => ({ '&': '&amp;'
                 this.providers=[];
             }
             this.renderUI();
+            SelectUI.init();
             this.handleTypeChange(document.getElementById('p-type')?.value||'gemini');
             BrandUI.update();
         },
@@ -1841,7 +1997,7 @@ function escapeHtml(text) { return text.replace(/[&<>"']/g, m => ({ '&': '&amp;'
         },
         renderUI(){
             const select=document.getElementById('provider-select');
-            select.innerHTML='<option value="random">🎲 随机优选 (自动轮询)</option>';
+            select.innerHTML='<option value="random">随机优选 · 自动轮询</option>';
             this.providers.forEach(p=>{
                 const provider=this.normalizeProvider(p);
                 const opt=document.createElement('option');
@@ -1854,15 +2010,21 @@ function escapeHtml(text) { return text.replace(/[&<>"']/g, m => ({ '&': '&amp;'
 
             const list=document.getElementById('provider-list');
             list.innerHTML='';
+            if(!this.providers.length)list.innerHTML='<p class="provider-empty">尚无渠道</p>';
             this.providers.forEach(p=>{
                 const provider=this.normalizeProvider(p);
-                const div=document.createElement('div');
+                const div=document.createElement('button');
+                div.type='button';
+                div.dataset.providerId=provider.id;
                 div.className='provider-item';
-                const typeLabel=provider.type==='openai'?(provider.openaiMode==='images'?'[OpenAI/Images]':'[OpenAI]'):'[Gemini]';
-                div.innerHTML=`<span>${escapeHtml(provider.name)} <span style="color:#1a73e8;font-size:9px;">${typeLabel}</span></span> <span style="color:#999; font-size:10px;">${escapeHtml(provider.model)}</span>`;
+                div.setAttribute('aria-pressed','false');
+                const typeLabel=provider.type==='openai'?(provider.openaiMode==='images'?'Images':'Chat'):'Gemini';
+                div.innerHTML=`<span class="provider-item-copy"><span class="provider-item-name">${escapeHtml(provider.name)}</span><span class="provider-item-model">${escapeHtml(provider.model)}</span></span><span class="provider-item-type">${typeLabel}</span>`;
+                div.title=`${provider.name} · ${provider.model}`;
                 div.onclick=()=>this.loadForm(provider);
                 list.appendChild(div);
             });
+            SelectUI.sync();
             BrandUI.update();
         },
         loadForm(provider){
@@ -1873,11 +2035,16 @@ function escapeHtml(text) { return text.replace(/[&<>"']/g, m => ({ '&': '&amp;'
             document.getElementById('p-host').value=normalized.host;
             document.getElementById('p-key').value=normalized.key;
             document.getElementById('p-model').value=normalized.model;
+            const preset=document.getElementById('p-model-select');
+            preset.value=Array.from(preset.options).some(option=>option.value===normalized.model)?normalized.model:'';
             const openaiModeSelect=document.getElementById('p-openai-mode');
             if(openaiModeSelect)openaiModeSelect.value=normalized.openaiMode||'chat';
             this.handleTypeChange(normalized.type);
             const items=document.querySelectorAll('.provider-item');
-            items.forEach(el=>{if(el.textContent.includes(normalized.name))el.classList.add('selected');else el.classList.remove('selected')});
+            items.forEach(el=>{const selected=el.dataset.providerId===normalized.id;el.classList.toggle('selected',selected);el.setAttribute('aria-pressed',String(selected))});
+            document.getElementById('provider-form-title').textContent='编辑渠道';
+            document.getElementById('provider-delete-btn').disabled=false;
+            SelectUI.sync();
         },
         clearForm(){
             document.getElementById('p-id').value='';
@@ -1886,10 +2053,14 @@ function escapeHtml(text) { return text.replace(/[&<>"']/g, m => ({ '&': '&amp;'
             document.getElementById('p-host').value='';
             document.getElementById('p-key').value='';
             document.getElementById('p-model').value='';
+            document.getElementById('p-model-select').value='';
             const openaiModeSelect=document.getElementById('p-openai-mode');
             if(openaiModeSelect)openaiModeSelect.value='chat';
             this.handleTypeChange('gemini');
-            document.querySelectorAll('.provider-item').forEach(el=>el.classList.remove('selected'));
+            document.querySelectorAll('.provider-item').forEach(el=>{el.classList.remove('selected');el.setAttribute('aria-pressed','false')});
+            document.getElementById('provider-form-title').textContent='新增渠道';
+            document.getElementById('provider-delete-btn').disabled=true;
+            SelectUI.sync();
         },
         save(){
             const id=document.getElementById('p-id').value;
@@ -1933,6 +2104,7 @@ function escapeHtml(text) { return text.replace(/[&<>"']/g, m => ({ '&': '&amp;'
         select(val){
             this.activeId=val;
             localStorage.setItem('gemini_active_provider',val);
+            SelectUI.sync();
             BrandUI.update();
         },
         getConfig(){
@@ -1999,7 +2171,7 @@ function escapeHtml(text) { return text.replace(/[&<>"']/g, m => ({ '&': '&amp;'
     setImageCount(localStorage.getItem('image_count'));
     document.getElementById('image-count').addEventListener('change', event => setImageCount(event.target.value));
     
-    window.onload=async()=>{UpdateUI.init();ProviderManager.init();XHSCreator.init();SlicerTool.init();BananaTool.init();CustomPromptTool.init();FileSystemManager.init();await initDB();await renderSessionList();const sessions=await getAllSessions();if(sessions.length>0)await loadSession(sessions[0].id);else await createNewSession();const streamToggle=document.getElementById('stream-toggle');if(streamToggle){streamToggle.checked=localStorage.getItem('use_streaming')==='true';state.useStreaming=streamToggle.checked;streamToggle.addEventListener('change',()=>{state.useStreaming=streamToggle.checked;localStorage.setItem('use_streaming',streamToggle.checked)})}const contextToggle=document.getElementById('context-toggle');const contextCount=document.getElementById('context-count');if(contextToggle&&contextCount){contextToggle.checked=localStorage.getItem('use_context')==='true';state.useContext=contextToggle.checked;state.contextCount=parseInt(localStorage.getItem('context_count')||'5');contextCount.value=state.contextCount;contextToggle.addEventListener('change',()=>{state.useContext=contextToggle.checked;localStorage.setItem('use_context',contextToggle.checked)});contextCount.addEventListener('change',()=>{state.contextCount=parseInt(contextCount.value);localStorage.setItem('context_count',contextCount.value)})}};
+    window.onload=async()=>{UpdateUI.init();ProviderManager.init();XHSCreator.init();SlicerTool.init();BananaTool.init();CustomPromptTool.init();FileSystemManager.init();await initDB();await renderSessionList();const sessions=await getAllSessions();if(sessions.length>0)await loadSession(sessions[0].id);else await createNewSession();const streamToggle=document.getElementById('stream-toggle');if(streamToggle){streamToggle.checked=localStorage.getItem('use_streaming')==='true';state.useStreaming=streamToggle.checked;streamToggle.addEventListener('change',()=>{state.useStreaming=streamToggle.checked;localStorage.setItem('use_streaming',streamToggle.checked)})}const contextToggle=document.getElementById('context-toggle');const contextCount=document.getElementById('context-count');if(contextToggle&&contextCount){contextToggle.checked=localStorage.getItem('use_context')==='true';state.useContext=contextToggle.checked;state.contextCount=parseInt(localStorage.getItem('context_count')||'5');contextCount.value=state.contextCount;SelectUI.sync();contextToggle.addEventListener('change',()=>{state.useContext=contextToggle.checked;localStorage.setItem('use_context',contextToggle.checked)});contextCount.addEventListener('change',()=>{state.contextCount=parseInt(contextCount.value);localStorage.setItem('context_count',contextCount.value)})}};
 
     function activateStickerMode(){createNewSession("表情包制作").then(()=>{const stickerPrompt="为我生成图中角色的绘制 Q 版的，LINE 风格的半身像表情包，注意头饰要正确\n彩色手绘风格，使用 4x6 布局，涵盖各种各样的常用聊天语句，或是一些有关的娱乐 meme\n其他需求：不要原图复制。所有标注为手写简体中文。";UI.textarea.value=stickerPrompt;state.resolution='4K';document.querySelectorAll('.res-btn').forEach(b=>b.classList.remove('active'));document.querySelector('.res-btn[data-val="4K"]').classList.add('active');state.aspectRatio='16:9';document.querySelectorAll('.ratio-card').forEach(c=>c.classList.remove('active'));document.querySelector('.ratio-card[data-val="16:9"]').classList.add('active');alert("已进入表情包模式！\n请点击输入框左侧图标上传一张角色参考图，然后点击发送。");adjustTextareaHeight();checkInput();if(window.innerWidth<=768)closeAllSidebars()})}
     
