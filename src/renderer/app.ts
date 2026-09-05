@@ -2532,7 +2532,7 @@ function escapeHtml(text) { return text.replace(/[&<>"']/g, m => ({ '&': '&amp;'
             formData.append('size',size);
             formData.append('quality',quality);
             formData.append('output_format',outputFormat);
-            formData.append('n',String(options.imageCount));
+            if(options.imageCount>1)formData.append('n',String(options.imageCount));
             if(options.useStreaming){
                 formData.append('stream','true');
                 formData.append('partial_images','2');
@@ -2556,7 +2556,7 @@ function escapeHtml(text) { return text.replace(/[&<>"']/g, m => ({ '&': '&amp;'
                 size,
                 quality,
                 output_format:outputFormat,
-                n:options.imageCount
+                ...(options.imageCount>1?{n:options.imageCount}:{})
             };
             if(options.useStreaming){
                 payload.stream=true;
@@ -2581,6 +2581,23 @@ function escapeHtml(text) { return text.replace(/[&<>"']/g, m => ({ '&': '&amp;'
                 const errorData=await res.json();
                 errorMessage=JSON.stringify(errorData);
             }catch(_){ }
+            // Some Images gateways forward n to a Responses tool that rejects it.
+            if(res.status===400&&options.imageCount>1&&/Unknown parameter:\s*['"]tools\[0\]\.n['"]/.test(errorMessage)){
+                const parts=[];
+                const errors=[];
+                for(let index=0;index<options.imageCount;index++){
+                    try{
+                        const result=await processOpenAIImagesApi(config,text,imagesBase64,loadingDiv,sessionId,{...options,imageCount:1});
+                        parts.push(...result.candidates[0].content.parts);
+                        if(result.streamError)errors.push(result.streamError);
+                    }catch(error){
+                        errors.push(error.message);
+                        break;
+                    }
+                }
+                if(!parts.length)throw new Error(errors.join('; '));
+                return {candidates:[{content:{parts}}],streamError:errors.join('; ')};
+            }
             throw new Error(errorMessage);
         }
 

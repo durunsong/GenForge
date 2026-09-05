@@ -76,6 +76,67 @@ test('Images API sends the selected count and keeps every result in history and 
   assert.equal(await page.locator('.message-row.bot img.generated-image').count(), 4);
 });
 
+for (const edit of [false, true]) {
+  test(`Images API handles a gateway rejecting tools[0].n (${edit ? 'edit' : 'generate'})`, async t => {
+    const page = await openApp(t);
+    const counts = [];
+    await page.route('https://images.test/v1/images/*', async route => {
+      const request = route.request();
+      const count = edit
+        ? request.postDataBuffer().toString().match(/name="n"\r\n\r\n(\d+)/)?.[1]
+        : request.postDataJSON().n;
+      counts.push(count);
+      if (count !== undefined) {
+        await route.fulfill({ status: 400, json: { error: { message: "Unknown parameter: 'tools[0].n'." } } });
+      } else {
+        await route.fulfill({ json: { data: [{ b64_json: png }] } });
+      }
+    });
+    if (edit) await page.evaluate(png => useAsReference(`data:image/png;base64,${png}`), png);
+    await generate(page, 3);
+    await waitForMessages(page, 1);
+    assert.deepEqual(counts.map(c => c === undefined ? null : Number(c)), [3, null, null, null]);
+    assert.equal(await page.locator('.message-row.bot img.generated-image').count(), 3);
+    const stored = await page.evaluate(async () => (await getSessionMessages(currentSessionId)).at(-1));
+    assert.equal(stored.images.length, 3);
+  });
+}
+
+test('Gateway fallback preserves completed streamed images and stops on a later failure', async t => {
+  const page = await openApp(t);
+  let requests = 0;
+  await page.route('https://images.test/v1/images/generations', async route => {
+    requests++;
+    if (requests === 1) {
+      await route.fulfill({ status: 400, json: { error: { message: "Unknown parameter: 'tools[0].n'." } } });
+    } else if (requests === 2) {
+      await route.fulfill({ contentType: 'text/event-stream', body: `data: ${JSON.stringify({ type: 'image_generation.completed', b64_json: png })}\n\n` });
+    } else {
+      await route.fulfill({ status: 503, json: { error: { message: 'Service unavailable' } } });
+    }
+  });
+  await page.locator('#stream-toggle').check();
+  await generate(page, 4);
+  await waitForMessages(page, 1);
+  assert.equal(requests, 3);
+  assert.equal(await page.locator('.message-row.bot img.generated-image').count(), 1);
+  assert.match(await page.locator('.message-row.bot').textContent(), /Service unavailable/);
+  assert.match(await page.locator('.message-row.bot').textContent(), /1\/4/);
+});
+
+test('Unrelated request errors never trigger single-image fallback', async t => {
+  const page = await openApp(t);
+  let requests = 0;
+  await page.route('https://images.test/v1/images/generations', async route => {
+    requests++;
+    await route.fulfill({ status: 400, json: { error: { message: 'Unsupported image size' } } });
+  });
+  await generate(page, 3);
+  await waitForMessages(page, 1);
+  assert.equal(requests, 1);
+  assert.match(await page.locator('.message-row.bot').textContent(), /Unsupported image size/);
+});
+
 test('Count control defaults to one, persists choices, and rejects invalid stored counts', async t => {
   const page = await openApp(t);
   const control = page.locator('#image-count');
@@ -206,7 +267,7 @@ test('An invalid runtime count falls back to one and repeated sends cannot dupli
   await generate(page, 99);
   await started;
   assert.equal(requests.length, 1);
-  assert.equal(requests[0].n, 1);
+  assert.equal(requests[0].n, undefined);
   await page.locator('#user-input').fill('Next prompt');
   await page.evaluate(() => { void sendMessage(); });
   assert.equal(await page.locator('#user-input').inputValue(), 'Next prompt');
