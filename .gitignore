@@ -8,4 +8,3 @@ release/
 *.tsbuildinfo
 .npmrc
 build/*
-!build/icon-source.png

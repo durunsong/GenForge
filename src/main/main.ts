@@ -6,6 +6,16 @@ import { setupAutoUpdater } from './updater';
 const isDev = !app.isPackaged;
 let mainWindow: BrowserWindow | null = null;
 
+app.setName('GenForge');
+// Reuse earlier profiles without moving their settings, credentials or conversations.
+const legacyProfiles = isDev
+  ? ['gemini-image-studio', 'Gemini绘图工作台']
+  : ['Gemini绘图工作台', 'gemini-image-studio'];
+const profilePaths = ['GenForge', ...legacyProfiles].map(name => path.join(app.getPath('appData'), name));
+const userDataPath = profilePaths.find(candidate => fs.existsSync(candidate)) ?? profilePaths[0];
+app.setPath('userData', userDataPath);
+app.setPath('sessionData', userDataPath);
+
 function resolveAppIcon(): string {
   const candidates = [
     path.join(__dirname, '../renderer/assets/icon.png'),
@@ -24,7 +34,7 @@ function createWindow(): BrowserWindow {
     minWidth: 1024,
     minHeight: 680,
     show: false,
-    title: 'Gemini 绘图工作台',
+    title: 'GenForge',
     backgroundColor: '#ffffff',
     autoHideMenuBar: true,
     icon: icon.isEmpty() ? undefined : icon,

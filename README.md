@@ -1,3 +1,5 @@
+<img src="src/renderer/assets/icon.png" width="64" height="64" alt="GenForge">
+
 # GenForge
 
 **语言 / Language:** [中文](README.md) | [English](README.en.md)
@@ -63,11 +65,11 @@
 
 | 系统 | 推荐下载 | 说明 |
 |------|----------|------|
-| Windows | `GeminiImageStudio-*-win-x64.exe` | NSIS 安装版，可自动更新 |
-| Windows | `GeminiImageStudio-*-portable.exe` | 便携版，需手动下载新版本 |
-| macOS | `GeminiImageStudio-*-mac-universal.dmg` | Intel + Apple Silicon 通用包 |
-| Linux | `GeminiImageStudio-*-linux-x64.AppImage` | 推荐，可自动更新 |
-| Linux | `GeminiImageStudio-*-linux-x64.deb` | Debian / Ubuntu 安装包 |
+| Windows | `GenForge-*-win-x64.exe` | NSIS 安装版，可自动更新 |
+| Windows | `GenForge-*-portable.exe` | 便携版，需手动下载新版本 |
+| macOS | `GenForge-*-mac-universal.dmg` | Intel + Apple Silicon 通用包 |
+| Linux | `GenForge-*-linux-x64.AppImage` | 推荐，可自动更新 |
+| Linux | `GenForge-*-linux-x64.deb` | Debian / Ubuntu 安装包 |
 
 3. 安装后打开即可使用
 
@@ -79,14 +81,14 @@
 2. 或在终端执行：
 
 ```bash
-xattr -cr /Applications/Gemini绘图工作台.app
+xattr -cr /Applications/GenForge.app
 ```
 
 ### Linux AppImage
 
 ```bash
-chmod +x GeminiImageStudio-*-linux-x64.AppImage
-./GeminiImageStudio-*-linux-x64.AppImage
+chmod +x GenForge-*-linux-x64.AppImage
+./GenForge-*-linux-x64.AppImage
 ```
 
 ---
@@ -96,6 +98,8 @@ chmod +x GeminiImageStudio-*-linux-x64.AppImage
 环境要求：Node.js 20+
 
 ```bash
+git clone https://github.com/durunsong/GenForge.git
+cd GenForge
 npm install
 npm run dev
 ```
@@ -203,7 +207,8 @@ npm run release:linux
 src/main/           Electron 主进程、自动更新
 src/renderer/       界面与业务逻辑
 scripts/            构建与图标生成脚本
-build/              应用图标等打包资源
+assets/brand/       GenForge 可编辑图标源文件
+build/              自动生成的应用图标等打包资源
 .github/workflows/  三端自动发版工作流
 ```
 
@@ -224,6 +229,10 @@ build/              应用图标等打包资源
 ---
 
 ## 常见问题
+
+**Q: 升级后原来的对话和配置还在吗？**
+
+GenForge 会优先使用现有的 GenForge 数据目录；如果没有，会沿用旧版数据目录。新安装使用 GenForge 目录。旧的浏览器存储标识保留兼容，不移动、合并或删除历史数据。
 
 **Q: 生图失败 / 401？**  
 检查 API Key、Base URL 是否正确，以及模型名是否与渠道匹配。Base URL 不要末尾带 `/v1`。

@@ -1,3 +1,5 @@
+<img src="src/renderer/assets/icon.png" width="64" height="64" alt="GenForge">
+
 # GenForge
 
 **Language / 语言:** [中文](README.md) | [English](README.en.md)
@@ -63,11 +65,11 @@ Author and maintainer: [durunsong](https://github.com/durunsong).
 
 | OS | Recommended | Notes |
 |----|--------------|-------|
-| Windows | `GeminiImageStudio-*-win-x64.exe` | NSIS installer, auto-update enabled |
-| Windows | `GeminiImageStudio-*-portable.exe` | Portable; manual updates |
-| macOS | `GeminiImageStudio-*-mac-universal.dmg` | Intel + Apple Silicon |
-| Linux | `GeminiImageStudio-*-linux-x64.AppImage` | Recommended, auto-update |
-| Linux | `GeminiImageStudio-*-linux-x64.deb` | Debian / Ubuntu |
+| Windows | `GenForge-*-win-x64.exe` | NSIS installer, auto-update enabled |
+| Windows | `GenForge-*-portable.exe` | Portable; manual updates |
+| macOS | `GenForge-*-mac-universal.dmg` | Intel + Apple Silicon |
+| Linux | `GenForge-*-linux-x64.AppImage` | Recommended, auto-update |
+| Linux | `GenForge-*-linux-x64.deb` | Debian / Ubuntu |
 
 3. Install and launch
 
@@ -79,14 +81,14 @@ Builds are unsigned / not notarized by default. If macOS blocks the app:
 2. Or run:
 
 ```bash
-xattr -cr /Applications/Gemini绘图工作台.app
+xattr -cr /Applications/GenForge.app
 ```
 
 ### Linux AppImage
 
 ```bash
-chmod +x GeminiImageStudio-*-linux-x64.AppImage
-./GeminiImageStudio-*-linux-x64.AppImage
+chmod +x GenForge-*-linux-x64.AppImage
+./GenForge-*-linux-x64.AppImage
 ```
 
 ---
@@ -96,6 +98,8 @@ chmod +x GeminiImageStudio-*-linux-x64.AppImage
 Requires Node.js 20+.
 
 ```bash
+git clone https://github.com/durunsong/GenForge.git
+cd GenForge
 npm install
 npm run dev
 ```
@@ -203,7 +207,8 @@ Requires `gh` login or `GH_TOKEN`. For full cross-platform releases, prefer tag 
 src/main/           Electron main process & auto-updater
 src/renderer/       UI and app logic
 scripts/            Build & icon generation
-build/              Icons and packaging assets
+assets/brand/       Editable GenForge icon source
+build/              Generated icons and packaging assets
 .github/workflows/  Multi-platform release workflow
 ```
 
@@ -224,6 +229,10 @@ build/              Icons and packaging assets
 ---
 
 ## FAQ
+
+**Q: Will my existing conversations and settings survive the upgrade?**
+
+GenForge prefers an existing GenForge profile, otherwise reuses the previous profile. Fresh installs use a GenForge directory. Browser storage identifiers remain compatible; no profile files are moved, merged or deleted.
 
 **Q: Generation fails / 401?**  
 Check API Key, Base URL, and that the model matches the provider. Do not append `/v1` to the Base URL.

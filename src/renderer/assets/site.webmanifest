@@ -1,7 +1,7 @@
 {
-  "name": "Gemini 绘图工作台",
-  "short_name": "Gemini绘图",
-  "description": "Gemini / GPT 图像生成工作台",
+  "name": "GenForge",
+  "short_name": "GenForge",
+  "description": "GenForge 多模型 AI 图像创作工作台",
   "icons": [
     {
       "src": "icon-192.png",
@@ -15,6 +15,6 @@
     }
   ],
   "display": "standalone",
-  "background_color": "#0B4F6C",
-  "theme_color": "#0B4F6C"
+  "background_color": "#202724",
+  "theme_color": "#202724"
 }

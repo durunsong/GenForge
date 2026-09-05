@@ -6,14 +6,10 @@ import pngToIco from 'png-to-ico';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
-const source =
-  [
-    path.join(root, 'build', 'icon-source.png'),
-    path.join(root, 'build', 'icon.png'),
-  ].find((p) => fs.existsSync(p)) ?? '';
+const source = path.join(root, 'assets', 'brand', 'genforge-icon.svg');
 
-if (!source) {
-  console.error('Missing build/icon-source.png');
+if (!fs.existsSync(source)) {
+  console.error('Missing assets/brand/genforge-icon.svg');
   process.exit(1);
 }
 
@@ -23,7 +19,7 @@ fs.mkdirSync(path.join(root, 'build'), { recursive: true });
 
 const outPng = path.join(root, 'build', 'icon.png');
 // macOS / Linux packaging prefers a larger master icon
-await sharp(source).resize(1024, 1024, { fit: 'cover' }).png().toFile(outPng);
+await sharp(source, { density: 144 }).resize(1024, 1024, { fit: 'cover' }).png().toFile(outPng);
 await sharp(source).resize(512, 512, { fit: 'cover' }).png().toFile(path.join(rendererAssets, 'icon.png'));
 await sharp(source).resize(32, 32, { fit: 'cover' }).png().toFile(path.join(rendererAssets, 'favicon-32.png'));
 await sharp(source).resize(16, 16, { fit: 'cover' }).png().toFile(path.join(rendererAssets, 'favicon-16.png'));

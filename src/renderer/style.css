@@ -1367,15 +1367,13 @@
         .action-btn:hover { color: #1a73e8; }
 
         .empty-state { margin-top: 10vh; text-align: center; color: var(--text-sub); animation: fadeIn 0.5s; padding: 20px; display: flex; flex-direction: column; align-items: center; }
-        .google-logo-svg { width: 56px; height: 56px; margin-bottom: 16px; }
-        .brand-logo-small { width: 24px; height: 24px; margin-right: 4px; }
+        .empty-state h1 { margin: 0 0 8px; color: var(--text-main); font-size: 24px; line-height: 1.25; font-weight: 650; letter-spacing: 0; }
+        .empty-state p { margin: 0; max-width: 100%; font-size: 13px; line-height: 1.6; overflow-wrap: anywhere; }
         .brand-logo-slot { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
         .brand-logo-slot--sm { width: 24px; height: 24px; margin-right: 4px; }
-        .brand-logo-slot--sm svg,
         .brand-logo-slot--sm img { width: 24px; height: 24px; display: block; border-radius: 6px; }
         .brand-logo-slot--lg { width: 56px; height: 56px; margin-bottom: 16px; }
-        .brand-logo-slot--lg svg,
-        .brand-logo-slot--lg img { width: 56px; height: 56px; display: block; border-radius: 14px; }
+        .brand-logo-slot--lg img { width: 56px; height: 56px; display: block; }
         .brand-area { display: flex; align-items: center; gap: 6px; font-weight: 600; }
 
         .input-container-outer {

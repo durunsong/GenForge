@@ -1,5 +1,5 @@
 // @ts-nocheck
-// Gemini Image Studio - Renderer
+// GenForge - Renderer
 declare const marked: {
   parse(src: string): string;
   setOptions?(options: Record<string, unknown>): void;
@@ -1771,89 +1771,32 @@ function escapeHtml(text) { return text.replace(/[&<>"']/g, m => ({ '&': '&amp;'
     };
 
     const BrandUI = {
-        googleSvg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>`,
-        openaiSvg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><path fill="#10a37f" d="M22.282 9.821a5.985 5.985 0 0 0-.516-4.91 6.046 6.046 0 0 0-6.51-2.9A6.065 6.065 0 0 0 4.981 4.18a5.985 5.985 0 0 0-3.998 2.9 6.046 6.046 0 0 0 .743 7.097 5.98 5.98 0 0 0 .517 4.911 6.052 6.052 0 0 0 6.511 2.9A5.985 5.985 0 0 0 13.26 24a6.056 6.056 0 0 0 5.772-4.206 5.99 5.99 0 0 0 3.997-2.9 6.056 6.056 0 0 0-.747-7.073zM13.26 22.43a4.476 4.476 0 0 1-2.876-1.04l.141-.081 4.779-2.758a.795.795 0 0 0 .392-.681v-6.737l2.02 1.168a.071.071 0 0 1 .038.052v5.583a4.504 4.504 0 0 1-4.494 4.494zM3.6 18.304a4.47 4.47 0 0 1-.535-3.014l.142.085 4.783 2.759a.771.771 0 0 0 .78 0l5.843-3.369v2.332a.08.08 0 0 1-.033.062L9.74 19.95a4.5 4.5 0 0 1-6.14-1.646zM2.34 7.896a4.485 4.485 0 0 1 2.366-1.973V11.6a.766.766 0 0 0 .388.676l5.815 3.355-2.02 1.168a.076.076 0 0 1-.071 0l-4.83-2.786A4.504 4.504 0 0 1 2.34 7.872zm16.597 3.855l-5.833-3.387L15.119 7.2a.076.076 0 0 1 .071 0l4.83 2.791a4.494 4.494 0 0 1-.676 8.105v-5.678a.79.79 0 0 0-.41-.677zm2.01-3.023l-.141-.085-4.784-2.742a.776.776 0 0 0-.785 0L9.409 9.27V6.938a.066.066 0 0 1 .028-.061l4.83-2.787a4.5 4.5 0 0 1 6.68 4.66zm-12.64 4.135l-2.02-1.164a.08.08 0 0 1-.038-.057V6.075a4.5 4.5 0 0 1 7.375-3.453l-.146.087-4.775 2.758a.796.796 0 0 0-.393.681zm1.097-2.365l2.602-1.5 2.607 1.5v2.999l-2.597 1.5-2.607-1.5z"/></svg>`,
-        appLogo: `<img src="assets/icon.png" alt="" draggable="false">`,
         getResolutionLabel() {
             return String(state?.resolution || '2K').toUpperCase().includes('4') ? '4K'
                 : String(state?.resolution || '2K').toUpperCase().includes('1') ? '1K'
                 : '2K';
         },
-        detectFamily(model = '', type = '') {
-            const m = String(model).toLowerCase();
-            const t = String(type).toLowerCase();
-            if (m.includes('gpt') || m.includes('dall-e') || m.includes('dalle') || m.includes('openai') || (t === 'openai' && m.includes('image') && !m.includes('gemini'))) {
-                return 'openai';
-            }
-            if (m.includes('gemini') || m.includes('imagen') || m.includes('nano-banana') || m.includes('flash-image') || t === 'gemini') {
-                return 'gemini';
-            }
-            if (t === 'openai') return 'openai';
-            return 'app';
-        },
-        shortName(model = '', family = 'app') {
-            const m = String(model || '').trim();
-            if (!m) return family === 'openai' ? 'GPT Image' : family === 'gemini' ? 'Gemini' : '绘图工作台';
-            if (family === 'openai') {
-                if (/gpt-image-2/i.test(m)) return 'GPT Image 2';
-                if (/gpt-image-1\.5/i.test(m)) return 'GPT Image 1.5';
-                if (/gpt-image-1/i.test(m)) return 'GPT Image 1';
-                if (/dall-e-3/i.test(m)) return 'DALL·E 3';
-                return m.length > 22 ? m.slice(0, 20) + '…' : m;
-            }
-            if (family === 'gemini') {
-                if (/gemini-3-pro-image/i.test(m)) return 'Gemini 3 Pro';
-                if (/gemini-2\.5-flash-image/i.test(m)) return 'Gemini 2.5 Flash';
-                if (/flash-image/i.test(m)) return 'Gemini Flash';
-                return m.length > 22 ? m.slice(0, 20) + '…' : m;
-            }
-            return m.length > 22 ? m.slice(0, 20) + '…' : m;
-        },
-        logoHtml(family) {
-            if (family === 'openai') return this.openaiSvg;
-            if (family === 'gemini') return this.googleSvg;
-            return this.appLogo;
-        },
-        resolve() {
-            const providers = ProviderManager.providers || [];
-            if (!providers.length) {
-                return {
-                    family: 'app',
-                    shortName: '绘图工作台',
-                    modelTitle: '绘图工作台',
-                    subtitle: `并发生成 · ${this.getResolutionLabel()} 渲染 · 本地存储`,
-                };
-            }
-            if (ProviderManager.activeId === 'random' || !providers.find(p => p.id === ProviderManager.activeId)) {
-                return {
-                    family: 'app',
-                    shortName: '随机优选',
-                    modelTitle: 'multi-model · random',
-                    subtitle: `并发生成 · ${this.getResolutionLabel()} 渲染 · 本地存储`,
-                };
-            }
-            const provider = ProviderManager.normalizeProvider(providers.find(p => p.id === ProviderManager.activeId));
-            const family = this.detectFamily(provider.model, provider.type);
-            return {
-                family,
-                shortName: this.shortName(provider.model, family),
-                modelTitle: provider.model || provider.name || '绘图工作台',
-                subtitle: `并发生成 · ${this.getResolutionLabel()} 渲染 · 本地存储`,
-            };
+        shortName(model = '') {
+            if (/gpt-image-2/i.test(model)) return 'GPT Image 2';
+            if (/gpt-image-1\.5/i.test(model)) return 'GPT Image 1.5';
+            if (/gpt-image-1/i.test(model)) return 'GPT Image 1';
+            if (/dall-e-3/i.test(model)) return 'DALL·E 3';
+            if (/gemini-3-pro-image/i.test(model)) return 'Gemini 3 Pro';
+            if (/gemini-2\.5-flash-image/i.test(model)) return 'Gemini 2.5 Flash';
+            return model;
         },
         update() {
-            const brand = this.resolve();
-            const logo = this.logoHtml(brand.family);
-            const setHtml = (id, html) => { const el = document.getElementById(id); if (el) el.innerHTML = html; };
-            const setText = (id, text) => { const el = document.getElementById(id); if (el) el.textContent = text; };
-            setHtml('brand-logo-mobile', logo);
-            setHtml('brand-logo-desktop', logo);
-            setHtml('empty-brand-logo', logo);
-            setText('brand-title-mobile', brand.shortName);
-            setText('brand-title-desktop', brand.shortName);
-            setText('empty-brand-title', brand.modelTitle);
-            setText('empty-brand-subtitle', brand.subtitle);
-            document.title = `${brand.shortName} · 绘图工作台`;
+            const providers = ProviderManager.providers || [];
+            const provider = providers.find(p => p.id === ProviderManager.activeId);
+            const model = !providers.length ? '图像创作'
+                : !provider || ProviderManager.activeId === 'random' ? '随机优选'
+                : provider.model || provider.name || '自定义模型';
+            const subtitle = document.getElementById('empty-brand-subtitle');
+            if (subtitle) {
+                subtitle.textContent = providers.length ? `${this.shortName(model)} · ${this.getResolutionLabel()}` : model;
+                subtitle.title = model;
+            }
+            document.title = 'GenForge';
         }
     };
 
@@ -1865,6 +1808,7 @@ function escapeHtml(text) { return text.replace(/[&<>"']/g, m => ({ '&': '&amp;'
         },
         init(){
             try{
+                // Keep legacy storage keys so upgrades retain existing provider settings.
                 this.providers=JSON.parse(localStorage.getItem('gemini_providers')||'[]').map(provider=>this.normalizeProvider(provider));
                 this.activeId=localStorage.getItem('gemini_active_provider')||'random';
                 const oldHost=localStorage.getItem('api-host');
@@ -2003,6 +1947,7 @@ function escapeHtml(text) { return text.replace(/[&<>"']/g, m => ({ '&': '&amp;'
     window.BrandUI = BrandUI;
     window.ProviderManager = ProviderManager;
 
+    // The database name is retained for compatibility with existing conversations.
     const DB_NAME='GeminiProDB';const DB_VERSION=2;let db=null;let currentSessionId=null;const activeGenerations=new Set();
     function initDB(){return new Promise((resolve,reject)=>{const request=indexedDB.open(DB_NAME,DB_VERSION);request.onupgradeneeded=(e)=>{const db=e.target.result;if(!db.objectStoreNames.contains('sessions'))db.createObjectStore('sessions',{keyPath:'id'});if(!db.objectStoreNames.contains('messages')){const msgStore=db.createObjectStore('messages',{keyPath:'id',autoIncrement:true});msgStore.createIndex('sessionId','sessionId',{unique:false})}};request.onsuccess=(e)=>{db=e.target.result;resolve(db)};request.onerror=(e)=>reject(e)})}
     async function getAllSessions(){return new Promise((resolve)=>{const tx=db.transaction('sessions','readonly');const req=tx.objectStore('sessions').getAll();req.onsuccess=()=>resolve(req.result.sort((a,b)=>b.id-a.id))})}
@@ -2714,7 +2659,7 @@ function escapeHtml(text) { return text.replace(/[&<>"']/g, m => ({ '&': '&amp;'
                         const pureBase64=fullBase64.split(',')[1]||part.inlineData.data;
                         generatedImages.push(pureBase64); // 保存纯base64数据
                         console.log('🎨 收集到生成的图片，base64长度:', pureBase64.length);
-                        const filename=`gemini_${progressId}_${generatedImages.length}.png`;
+                        const filename=`genforge_${progressId}_${generatedImages.length}.png`;
 
                         // 自动保存到本地目录
                         if (FileSystemManager.isEnabled && FileSystemManager.directoryHandle) {

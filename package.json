@@ -1,7 +1,7 @@
 {
-  "name": "gemini-image-studio",
+  "name": "genforge",
   "version": "1.0.1",
-  "description": "Gemini / GPT 图像生成桌面工作台",
+  "description": "GenForge 多模型 AI 图像创作工作台",
   "main": "dist/main/main.js",
   "author": "durunsong",
   "license": "Apache-2.0",
@@ -35,7 +35,7 @@
   },
   "build": {
     "appId": "io.github.durunsong.genforge",
-    "productName": "Gemini绘图工作台",
+    "productName": "GenForge",
     "copyright": "Copyright © 2026 durunsong",
     "directories": {
       "output": "release",
@@ -59,10 +59,10 @@
         "releaseType": "release"
       }
     ],
-    "artifactName": "GeminiImageStudio-${version}-${os}-${arch}.${ext}",
+    "artifactName": "GenForge-${version}-${os}-${arch}.${ext}",
     "win": {
       "icon": "build/icon.ico",
-      "signAndEditExecutable": false,
+      "signAndEditExecutable": true,
       "target": [
         {
           "target": "nsis",
@@ -89,7 +89,7 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "Gemini绘图工作台",
+      "shortcutName": "GenForge",
       "installerIcon": "build/icon.ico",
       "uninstallerIcon": "build/icon.ico",
       "installerLanguages": [
@@ -99,7 +99,7 @@
       "language": "2052"
     },
     "portable": {
-      "artifactName": "GeminiImageStudio-${version}-portable.${ext}"
+      "artifactName": "GenForge-${version}-portable.${ext}"
     },
     "mac": {
       "icon": "build/icon.png",
@@ -123,13 +123,13 @@
       ]
     },
     "dmg": {
-      "title": "Gemini绘图工作台 ${version}"
+      "title": "GenForge ${version}"
     },
     "linux": {
       "icon": "build/icons",
       "category": "Graphics",
       "maintainer": "durunsong",
-      "synopsis": "Gemini / GPT 图像生成桌面工作台",
+      "synopsis": "GenForge 多模型 AI 图像创作工作台",
       "target": [
         {
           "target": "AppImage",
