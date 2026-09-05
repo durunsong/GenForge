@@ -1,0 +1,119 @@
+/* App version footer and update dialog */
+.app-version-footer {
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-color);
+}
+.app-version-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 32px;
+  font-size: 12px;
+  color: var(--text-sub);
+}
+.app-version-row strong {
+  margin-left: 4px;
+  color: var(--text-main);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+#check-update-btn {
+  flex-shrink: 0;
+  min-height: 32px;
+  padding: 4px 8px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--primary-color);
+  font-size: 12px;
+  cursor: pointer;
+}
+#check-update-btn:hover { background: var(--hover-color); }
+.app-update-details summary {
+  width: fit-content;
+  padding: 4px 0;
+  font-size: 11px;
+  color: var(--text-sub);
+  cursor: pointer;
+}
+.app-version-hint {
+  margin-top: 8px;
+  font-size: 11px;
+  line-height: 1.45;
+  color: var(--text-sub);
+  overflow-wrap: anywhere;
+}
+.update-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(15, 23, 42, 0.45);
+  padding: 20px;
+}
+.update-modal.active { display: flex; }
+.update-modal-card {
+  width: min(420px, 100%);
+  background: #fff;
+  border-radius: 16px;
+  padding: 24px 22px 18px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.18);
+  text-align: center;
+}
+[data-theme="dark"] .update-modal-card {
+  background: var(--card-bg, #1f1f1f);
+  color: var(--text-main, #e8eaed);
+}
+.update-modal-icon {
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 12px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #e8f0fe;
+  color: #1a73e8;
+  font-size: 22px;
+  font-weight: 700;
+}
+.update-modal-card h3 {
+  margin: 0 0 8px;
+  font-size: 18px;
+}
+.update-modal-card p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.55;
+  color: #5f6368;
+  white-space: pre-wrap;
+}
+[data-theme="dark"] .update-modal-card p { color: #9aa0a6; }
+.update-progress-wrap { margin-top: 16px; }
+.update-progress-bar {
+  height: 8px;
+  border-radius: 999px;
+  background: #e8eaed;
+  overflow: hidden;
+}
+.update-progress-bar > div {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #1a73e8, #34a853);
+  transition: width 0.2s ease;
+}
+#update-progress-text {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #5f6368;
+}
+.update-modal-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 18px;
+}
+.update-modal-actions .config-btn { flex: 1; padding: 10px 12px; }
