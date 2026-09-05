@@ -2039,7 +2039,20 @@ function escapeHtml(text) { return text.replace(/[&<>"']/g, m => ({ '&': '&amp;'
     // 页面加载时初始化主题
     initTheme();
     
-    const UI={chatHistory:document.getElementById('chat-history'),emptyState:document.getElementById('empty-state'),sessionList:document.getElementById('session-list'),textarea:document.getElementById('user-input'),fileInput:document.getElementById('file-input'),previewArea:document.getElementById('preview-area'),sendBtn:document.getElementById('send-btn')};const state={images:[],resolution:'2K',aspectRatio:'auto',useStreaming:false,useContext:false,contextCount:5};
+    const UI={chatHistory:document.getElementById('chat-history'),emptyState:document.getElementById('empty-state'),sessionList:document.getElementById('session-list'),textarea:document.getElementById('user-input'),fileInput:document.getElementById('file-input'),previewArea:document.getElementById('preview-area'),sendBtn:document.getElementById('send-btn')};const state={images:[],resolution:'2K',aspectRatio:'auto',imageCount:1,useStreaming:false,useContext:false,contextCount:5};
+
+    function normalizeImageCount(value) {
+        const count = Number(value);
+        return Number.isInteger(count) && count >= 1 && count <= 4 ? count : 1;
+    }
+
+    function setImageCount(value) {
+        state.imageCount = normalizeImageCount(value);
+        document.getElementById('image-count').value = String(state.imageCount);
+        localStorage.setItem('image_count', String(state.imageCount));
+    }
+    setImageCount(localStorage.getItem('image_count'));
+    document.getElementById('image-count').addEventListener('change', event => setImageCount(event.target.value));
     
     window.onload=async()=>{UpdateUI.init();ProviderManager.init();XHSCreator.init();SlicerTool.init();BananaTool.init();CustomPromptTool.init();FileSystemManager.init();await initDB();await renderSessionList();const sessions=await getAllSessions();if(sessions.length>0)await loadSession(sessions[0].id);else await createNewSession();const streamToggle=document.getElementById('stream-toggle');if(streamToggle){streamToggle.checked=localStorage.getItem('use_streaming')==='true';state.useStreaming=streamToggle.checked;streamToggle.addEventListener('change',()=>{state.useStreaming=streamToggle.checked;localStorage.setItem('use_streaming',streamToggle.checked)})}const contextToggle=document.getElementById('context-toggle');const contextCount=document.getElementById('context-count');if(contextToggle&&contextCount){contextToggle.checked=localStorage.getItem('use_context')==='true';state.useContext=contextToggle.checked;state.contextCount=parseInt(localStorage.getItem('context_count')||'5');contextCount.value=state.contextCount;contextToggle.addEventListener('change',()=>{state.useContext=contextToggle.checked;localStorage.setItem('use_context',contextToggle.checked)});contextCount.addEventListener('change',()=>{state.contextCount=parseInt(contextCount.value);localStorage.setItem('context_count',contextCount.value)})}};
 
@@ -2111,11 +2124,16 @@ function escapeHtml(text) { return text.replace(/[&<>"']/g, m => ({ '&': '&amp;'
     
     async function sendMessage(){
         if(!currentSessionId)await createNewSession();
+        if(activeGenerations.has(currentSessionId)){
+            showToast('当前对话仍在生成图片，请等待完成', 'info');
+            return;
+        }
         const text=UI.textarea.value.trim(); const hasImgs=state.images.length>0; if(!text&&!hasImgs)return;
         const config=ProviderManager.getConfig(); if(!config){alert("请先在右侧设置中添加 API 渠道");toggleSettings();return}
+        const options = { ...state, imageCount: normalizeImageCount(state.imageCount), history: [] };
 
         // 清理可能残留的流式响应div
-        const existingStreamDiv = document.getElementById('stream-text-content');
+        const existingStreamDiv = document.getElementById(`stream-text-content-${currentSessionId}`);
         if (existingStreamDiv && existingStreamDiv.closest('.message-row')) {
             existingStreamDiv.closest('.message-row').remove();
         }
@@ -2123,26 +2141,40 @@ function escapeHtml(text) { return text.replace(/[&<>"']/g, m => ({ '&': '&amp;'
         UI.emptyState.style.display='none';
         let userHtml = ""; if(text) userHtml+=`<div class="msg-content">${escapeHtml(text).replace(/\n/g,'<br>')}</div>`;
         const currentImagesBase64 = state.images.map(i => i.base64); const currentText = text; const thisSessionId = currentSessionId;
-        UI.textarea.value=''; UI.textarea.style.height='24px'; state.images=[]; renderPreviews(); checkInput();
-        const userMsgId = await saveMessage(thisSessionId, 'user', currentText, currentImagesBase64, userHtml);
-        appendMessageToUI('user', userHtml, currentText, currentImagesBase64, userMsgId);
-        const msgs = await getSessionMessages(thisSessionId); if(msgs.length<=1 && currentText){ const newTitle = currentText.substring(0, 20) + (currentText.length>20?'...':''); updateSessionTitle(thisSessionId, newTitle); renderSessionList(); }
-
-        // 创建带进度条的 loading 消息
-        let loadingDiv=null;
-        const progressId = 'progress-' + Date.now();
-        if(thisSessionId===currentSessionId){
-            const loadingHtml = SmartProgressBar.createHTML(progressId);
-            loadingDiv = appendMessageToUI('bot', loadingHtml);
-
-            // 启动智能进度条
-            const hasRefImages = currentImagesBase64.length > 0;
-            SmartProgressBar.start(progressId, state.resolution, hasRefImages);
-        }
-
         activeGenerations.add(thisSessionId);
-        renderSessionList();
-        processGeneration(config, currentText, currentImagesBase64, loadingDiv, thisSessionId, progressId);
+        try {
+            UI.textarea.value=''; UI.textarea.style.height='24px'; state.images=[]; renderPreviews(); checkInput();
+            const userMsgId = await saveMessage(thisSessionId, 'user', currentText, currentImagesBase64, userHtml);
+            if(thisSessionId === currentSessionId)appendMessageToUI('user', userHtml, currentText, currentImagesBase64, userMsgId);
+            const msgs = await getSessionMessages(thisSessionId); if(msgs.length<=1 && currentText){ const newTitle = currentText.substring(0, 20) + (currentText.length>20?'...':''); updateSessionTitle(thisSessionId, newTitle); renderSessionList(); }
+            if(options.useContext && options.contextCount > 0){
+                options.history = msgs.slice(-options.contextCount * 2 - 1, -1);
+            }
+            renderSessionList();
+
+            const nativeBatch = config.type === 'openai' && config.openaiMode === 'images';
+            const attempts = nativeBatch ? 1 : options.imageCount;
+            // Keep every request in a batch on the same settings and pre-generation history.
+            for(let index = 0; index < attempts; index++){
+                const progressId = 'progress-' + crypto.randomUUID();
+                let loadingDiv = null;
+                if(thisSessionId === currentSessionId){
+                    const label = nativeBatch ? `正在生成 ${options.imageCount} 张图片` : `正在生成第 ${index + 1}/${attempts} 张`;
+                    loadingDiv = appendMessageToUI('bot', `<div class="setting-hint" role="status">${label}</div>${SmartProgressBar.createHTML(progressId)}`);
+                    SmartProgressBar.start(progressId, options.resolution, currentImagesBase64.length > 0);
+                }
+                await processGeneration(config, currentText, currentImagesBase64, loadingDiv, thisSessionId, progressId, {
+                    ...options, imageCount: nativeBatch ? options.imageCount : 1,
+                });
+            }
+        } finally {
+            activeGenerations.delete(thisSessionId);
+            renderSessionList();
+            if(thisSessionId === currentSessionId){
+                document.getElementById('temp-loading')?.closest('.message-row')?.remove();
+            }
+            checkInput();
+        }
     }
 
     async function urlToRef(url) { try { const response = await nativeFetch(url); const blob = await response.blob(); const reader = new FileReader(); reader.onloadend = () => { useAsReference(reader.result); }; reader.readAsDataURL(blob); } catch (e) { alert("获取远程图片失败（可能是跨域限制）。\n请点击下载按钮保存图片，然后手动上传。"); } }
@@ -2151,16 +2183,16 @@ function escapeHtml(text) { return text.replace(/[&<>"']/g, m => ({ '&': '&amp;'
         return String(host).trim().replace(/\/+$/,'').replace(/\/v1$/,'');
     }
 
-    function getOpenAIImageQuality(){
-        const resolution=String(state.resolution||'').toLowerCase();
+    function getOpenAIImageQuality(options){
+        const resolution=String(options.resolution||'').toLowerCase();
         if(resolution.includes('4k')||resolution.includes('4096'))return'high';
         if(resolution.includes('2048')||resolution.includes('2k'))return'medium';
         if(resolution.includes('1024')||resolution.includes('1k'))return'low';
         return'medium';
     }
 
-    function getOpenAIImageSize(){
-        const ratio=state.aspectRatio||'auto';
+    function getOpenAIImageSize(options){
+        const ratio=options.aspectRatio||'auto';
         if(ratio==='auto')return'auto';
         if(ratio==='1:1')return'1024x1024';
 
@@ -2169,8 +2201,8 @@ function escapeHtml(text) { return text.replace(/[&<>"']/g, m => ({ '&': '&amp;'
         return ratioWidth>ratioHeight?'1536x1024':'1024x1536';
     }
 
-    function enhanceOpenAIImagePrompt(prompt){
-        const ratio=state.aspectRatio||'auto';
+    function enhanceOpenAIImagePrompt(prompt,options){
+        const ratio=options.aspectRatio||'auto';
         if(ratio==='auto')return prompt;
         if(ratio==='21:9'){
             return `${prompt}\n\n构图要求：必须使用超宽电影感 21:9 横幅构图，画面左右延展明显，主体不要贴近上下边缘，预留足够的横向景别与环境空间。禁止把主体横向拉宽或纵向压扁。`;
@@ -2237,11 +2269,9 @@ function escapeHtml(text) { return text.replace(/[&<>"']/g, m => ({ '&': '&amp;'
         return'image/png';
     }
 
-    async function buildOpenAIImagePrompt(sessionId,text){
+    function buildOpenAIImagePrompt(text,options){
         const prompt=text||'Generate image';
-        if(!state.useContext||state.contextCount<=0)return prompt;
-        const historyMessages=await getSessionMessages(sessionId);
-        const recentMessages=historyMessages.slice(-state.contextCount*2-1,-1).filter(msg=>msg.content);
+        const recentMessages=options.history.filter(msg=>msg.content);
         if(recentMessages.length===0)return prompt;
         const contextBlock=recentMessages.map(msg=>`${msg.role==='user'?'用户':'助手'}：${msg.content}`).join('\n');
         return `请结合以下历史上下文继续创作，但优先满足最后的当前需求。\n\n${contextBlock}\n\n当前需求：${prompt}`;
@@ -2255,17 +2285,17 @@ function escapeHtml(text) { return text.replace(/[&<>"']/g, m => ({ '&': '&amp;'
     }
 
     function normalizeOpenAIImagesApiResponse(payload,fallbackMimeType='image/png'){
-        const imageItem=payload?.data?.find(item=>item?.b64_json);
-        if(!imageItem)return payload;
+        const imageItems=payload?.data?.filter(item=>item?.b64_json)||[];
+        if(!imageItems.length)throw new Error('图片接口未返回生成图片，请重试或检查渠道配置');
         return {
             candidates:[{
                 content:{
-                    parts:[{
+                    parts:imageItems.map(imageItem=>({
                         inlineData:{
                             mimeType:getOpenAIOutputMime(imageItem.output_format||fallbackMimeType.split('/')[1]||'png'),
                             data:imageItem.b64_json
                         }
-                    }]
+                    }))
                 }
             }]
         };
@@ -2284,7 +2314,8 @@ function escapeHtml(text) { return text.replace(/[&<>"']/g, m => ({ '&': '&amp;'
         let buffer='';
         let rawResponse='';
         let previewDiv=null;
-        let finalImageB64='';
+        const finalImages=[];
+        let streamError='';
         let finalMimeType='image/png';
         const previewId=`stream-image-preview-${sessionId}`;
 
@@ -2305,44 +2336,54 @@ function escapeHtml(text) { return text.replace(/[&<>"']/g, m => ({ '&': '&amp;'
             previewDiv.id=previewId;
         };
 
-        while(true){
-            const {done,value}=await reader.read();
-            if(done)break;
-            const decodedChunk=decoder.decode(value,{stream:true});
-            rawResponse+=decodedChunk;
-            buffer+=decodedChunk;
-            const lines=buffer.split('\n');
-            buffer=lines.pop();
+        try {
+            while(true){
+                const {done,value}=await reader.read();
+                const decodedChunk=done?decoder.decode():decoder.decode(value,{stream:true});
+                rawResponse+=decodedChunk;
+                buffer+=decodedChunk;
+                if(done)buffer+='\n';
+                const lines=buffer.split('\n');
+                buffer=lines.pop();
 
-            for(const rawLine of lines){
-                const line=rawLine.trim();
-                if(!line.startsWith('data:'))continue;
-                const eventData=line.replace(/^data:\s*/,'');
-                if(!eventData||eventData==='[DONE]')continue;
+                for(const rawLine of lines){
+                    const line=rawLine.trim();
+                    if(!line.startsWith('data:'))continue;
+                    const eventData=line.replace(/^data:\s*/,'');
+                    if(!eventData||eventData==='[DONE]')continue;
 
-                try{
-                    const event=JSON.parse(eventData);
-                    const eventType=event.type||'';
-                    if(eventType.endsWith('.partial_image')&&event.b64_json){
-                        finalMimeType=getOpenAIOutputMime(event.output_format||'png');
-                        renderPreview(`data:${finalMimeType};base64,${event.b64_json}`,'正在生成预览图...');
-                    }else if(eventType.endsWith('.completed')){
-                        finalMimeType=getOpenAIOutputMime(event.output_format||'png');
-                        finalImageB64=event.b64_json||event.data?.[0]?.b64_json||finalImageB64;
-                    }else if(eventType.endsWith('.error')){
-                        const errorMessage=typeof event.error==='string'?event.error:(event.error?.message||'OpenAI 图片流返回错误');
-                        throw new Error(errorMessage);
+                    try{
+                        const event=JSON.parse(eventData);
+                        const eventType=event.type||'';
+                        if(eventType.endsWith('.partial_image')&&event.b64_json){
+                            finalMimeType=getOpenAIOutputMime(event.output_format||'png');
+                            renderPreview(`data:${finalMimeType};base64,${event.b64_json}`,'正在生成预览图...');
+                        }else if(eventType.endsWith('.completed')){
+                            const items=event.b64_json?[event]:(event.data||[]);
+                            finalImages.push(...items.filter(item=>item?.b64_json).map(item=>({
+                                ...item, output_format:item.output_format||event.output_format||'png'
+                            })));
+                        }else if(eventType==='error'||eventType.endsWith('.error')){
+                            const errorMessage=typeof event.error==='string'?event.error:(event.error?.message||'OpenAI 图片流返回错误');
+                            throw new Error(errorMessage);
+                        }
+                    }catch(e){
+                        if(e instanceof Error&&e.message!=='Unexpected end of JSON input')throw e;
+                        console.warn('Parse OpenAI image SSE error:',e);
                     }
-                }catch(e){
-                    if(e instanceof Error&&e.message!=='Unexpected end of JSON input')throw e;
-                    console.warn('Parse OpenAI image SSE error:',e);
                 }
+                if(done)break;
             }
+        } catch(error) {
+            await reader.cancel().catch(() => {});
+            if(!finalImages.length)throw error;
+            streamError=error.message;
+        } finally {
+            reader.releaseLock();
+            if(previewDiv&&previewDiv.parentElement)previewDiv.remove();
         }
-
-        if(previewDiv&&previewDiv.parentElement)previewDiv.remove();
-        if(!finalImageB64){
-            const rawText=(rawResponse + decoder.decode()).trim();
+        if(!finalImages.length){
+            const rawText=rawResponse.trim();
             if(rawText){
                 try{
                     const payload=JSON.parse(rawText);
@@ -2355,24 +2396,13 @@ function escapeHtml(text) { return text.replace(/[&<>"']/g, m => ({ '&': '&amp;'
             throw new Error('流式图片返回中未收到最终图片');
         }
 
-        return {
-            candidates:[{
-                content:{
-                    parts:[{
-                        inlineData:{
-                            mimeType:finalMimeType,
-                            data:finalImageB64
-                        }
-                    }]
-                }
-            }]
-        };
+        return { ...normalizeOpenAIImagesApiResponse({data:finalImages}), streamError };
     }
 
-    async function processOpenAIImagesApi(config,text,imagesBase64,loadingDiv,sessionId){
-        const prompt=enhanceOpenAIImagePrompt(await buildOpenAIImagePrompt(sessionId,text));
-        const size=getOpenAIImageSize();
-        const quality=getOpenAIImageQuality();
+    async function processOpenAIImagesApi(config,text,imagesBase64,loadingDiv,sessionId,options){
+        const prompt=enhanceOpenAIImagePrompt(buildOpenAIImagePrompt(text,options),options);
+        const size=getOpenAIImageSize(options);
+        const quality=getOpenAIImageQuality(options);
         const outputFormat='png';
         const isEditMode=imagesBase64.length>0;
         const requestUrl=`${normalizeOpenAIHost(config.host)}${isEditMode?'/v1/images/edits':'/v1/images/generations'}`;
@@ -2385,7 +2415,8 @@ function escapeHtml(text) { return text.replace(/[&<>"']/g, m => ({ '&': '&amp;'
             formData.append('size',size);
             formData.append('quality',quality);
             formData.append('output_format',outputFormat);
-            if(state.useStreaming){
+            formData.append('n',String(options.imageCount));
+            if(options.useStreaming){
                 formData.append('stream','true');
                 formData.append('partial_images','2');
             }
@@ -2397,7 +2428,7 @@ function escapeHtml(text) { return text.replace(/[&<>"']/g, m => ({ '&': '&amp;'
                 method:'POST',
                 headers:{
                     'Authorization':`Bearer ${config.key}`,
-                    'Accept':state.useStreaming?'text/event-stream':'application/json'
+                    'Accept':options.useStreaming?'text/event-stream':'application/json'
                 },
                 body:formData
             };
@@ -2408,9 +2439,9 @@ function escapeHtml(text) { return text.replace(/[&<>"']/g, m => ({ '&': '&amp;'
                 size,
                 quality,
                 output_format:outputFormat,
-                n:1
+                n:options.imageCount
             };
-            if(state.useStreaming){
+            if(options.useStreaming){
                 payload.stream=true;
                 payload.partial_images=2;
             }
@@ -2420,7 +2451,7 @@ function escapeHtml(text) { return text.replace(/[&<>"']/g, m => ({ '&': '&amp;'
                 headers:{
                     'Authorization':`Bearer ${config.key}`,
                     'Content-Type':'application/json',
-                    'Accept':state.useStreaming?'text/event-stream':'application/json'
+                    'Accept':options.useStreaming?'text/event-stream':'application/json'
                 },
                 body:JSON.stringify(payload)
             };
@@ -2436,29 +2467,25 @@ function escapeHtml(text) { return text.replace(/[&<>"']/g, m => ({ '&': '&amp;'
             throw new Error(errorMessage);
         }
 
-        if(state.useStreaming)return await parseOpenAIImageStream(res,loadingDiv,sessionId);
+        if(options.useStreaming)return await parseOpenAIImageStream(res,loadingDiv,sessionId);
         const payload=await res.json();
         return normalizeOpenAIImagesApiResponse(payload,getOpenAIOutputMime(outputFormat));
     }
 
-    async function processGeneration(config,text,imagesBase64,loadingDiv,sessionId,progressId){
+    async function processGeneration(config,text,imagesBase64,loadingDiv,sessionId,progressId,options){
         try{
             let data;
             if (config.type === 'openai') {
                 if ((config.openaiMode || 'chat') === 'images') {
-                    data = await processOpenAIImagesApi(config, text, imagesBase64, loadingDiv, sessionId);
-                    activeGenerations.delete(sessionId);
-                    renderSessionList();
+                    data = await processOpenAIImagesApi(config, text, imagesBase64, loadingDiv, sessionId, options);
                 } else {
                     // 构建消息数组
                     let messages = [];
                     let contextImages = []; // 收集上下文中的历史图片
 
                 // 如果启用了上下文，获取历史消息
-                if (state.useContext && state.contextCount > 0) {
-                    const historyMessages = await getSessionMessages(sessionId);
-                    // 获取最近N条消息（排除刚保存的当前用户消息）
-                    const recentMessages = historyMessages.slice(-state.contextCount * 2 - 1, -1);
+                if (options.history.length > 0) {
+                    const recentMessages = options.history;
 
                     // 转换历史消息为API格式（OpenAI不支持历史图片在上下文中，只保留文本）
                     recentMessages.forEach(msg => {
@@ -2503,15 +2530,15 @@ function escapeHtml(text) { return text.replace(/[&<>"']/g, m => ({ '&': '&amp;'
                 messages.push(currentMessage);
 
                 let size = "1024x1024";
-                if (state.resolution === "2K") size = "2048x2048";
-                else if (state.resolution === "4K") size = "4096x4096";
+                if (options.resolution === "2K") size = "2048x2048";
+                else if (options.resolution === "4K") size = "4096x4096";
 
                 const payload = {
                     model: config.model,
                     messages: messages,
-                    stream: state.useStreaming,
+                    stream: options.useStreaming,
                     size: size,
-                    aspect_ratio: state.aspectRatio !== 'auto' ? state.aspectRatio : undefined
+                    aspect_ratio: options.aspectRatio !== 'auto' ? options.aspectRatio : undefined
                 };
 
                 // 构建请求 URL
@@ -2531,20 +2558,15 @@ function escapeHtml(text) { return text.replace(/[&<>"']/g, m => ({ '&': '&amp;'
                 
                 if (!res.ok) {
                     const errorData = await res.json();
-                    activeGenerations.delete(sessionId);
-                    renderSessionList();
                     throw new Error(JSON.stringify(errorData));
                 }
                 
-                if (state.useStreaming) {
+                if (options.useStreaming) {
                     data = await parseStreamResponse(res, loadingDiv, sessionId);
                 } else {
                     data = await res.json();
                 }
                 
-                activeGenerations.delete(sessionId);
-                renderSessionList();
-
                 const streamTextDiv = data.streamTextDiv;
                 
                 if (data.choices?.[0]?.message?.content) {
@@ -2557,7 +2579,7 @@ function escapeHtml(text) { return text.replace(/[&<>"']/g, m => ({ '&': '&amp;'
                     
                     if (dataUrlMatch || httpUrlMatch) {
                         if (streamTextDiv && sessionId === currentSessionId) {
-                            const contentEl = document.getElementById('stream-text-content');
+                            const contentEl = document.getElementById(`stream-text-content-${sessionId}`);
                             if (contentEl) {
                                 const currentText = contentEl.textContent.replace('[图片生成中...]', '');
                                 if (currentText.trim()) {
@@ -2623,10 +2645,8 @@ function escapeHtml(text) { return text.replace(/[&<>"']/g, m => ({ '&': '&amp;'
                 let contextImages = []; // 收集上下文中的图片
 
                 // If context enabled, get history messages
-                if (state.useContext && state.contextCount > 0) {
-                    const historyMessages = await getSessionMessages(sessionId);
-                    const recentMessages = historyMessages.slice(-state.contextCount * 2 - 1, -1);
-                    console.log('📖 读取历史消息，总数:', historyMessages.length, '使用:', recentMessages.length);
+                if (options.history.length > 0) {
+                    const recentMessages = options.history;
 
                     recentMessages.forEach(msg => {
                         const parts = [];
@@ -2661,8 +2681,8 @@ function escapeHtml(text) { return text.replace(/[&<>"']/g, m => ({ '&': '&amp;'
                 });
                 contents.push({ role: "user", parts: currentParts });
 
-                const generationConfig = { responseModalities: ["TEXT", "IMAGE"], imageConfig: { imageSize: state.resolution } };
-                if (state.aspectRatio && state.aspectRatio !== 'auto') generationConfig.imageConfig.aspectRatio = state.aspectRatio;
+                const generationConfig = { responseModalities: ["TEXT", "IMAGE"], imageConfig: { imageSize: options.resolution } };
+                if (options.aspectRatio && options.aspectRatio !== 'auto') generationConfig.imageConfig.aspectRatio = options.aspectRatio;
                 const payload = { contents: contents, generationConfig: generationConfig };
 
                 // 构建请求 URL
@@ -2680,8 +2700,6 @@ function escapeHtml(text) { return text.replace(/[&<>"']/g, m => ({ '&': '&amp;'
                     body: JSON.stringify(payload)
                 });
                 data = await res.json();
-                activeGenerations.delete(sessionId);
-                renderSessionList();
                 if (!res.ok) throw new Error(JSON.stringify(data));
             }
             const streamTextDiv = data.streamTextDiv;
@@ -2696,8 +2714,7 @@ function escapeHtml(text) { return text.replace(/[&<>"']/g, m => ({ '&': '&amp;'
                         const pureBase64=fullBase64.split(',')[1]||part.inlineData.data;
                         generatedImages.push(pureBase64); // 保存纯base64数据
                         console.log('🎨 收集到生成的图片，base64长度:', pureBase64.length);
-                        const now=new Date();
-                        const filename=`gemini_${now.getTime()}.png`;
+                        const filename=`gemini_${progressId}_${generatedImages.length}.png`;
 
                         // 自动保存到本地目录
                         if (FileSystemManager.isEnabled && FileSystemManager.directoryHandle) {
@@ -2756,9 +2773,17 @@ function escapeHtml(text) { return text.replace(/[&<>"']/g, m => ({ '&': '&amp;'
                 }
             }
 
+            if(botInnerHtml && generatedImages.length < options.imageCount){
+                botInnerHtml = `<div class="setting-hint" role="status">本次返回 ${generatedImages.length}/${options.imageCount} 张图片，未生成的图片请重新提交。</div>` + botInnerHtml;
+            }
+            if(data.streamError){
+                botInnerHtml = `<div class="msg-content" role="alert">${escapeHtml(data.streamError)}</div>` + botInnerHtml;
+            }
+            if(!botInnerHtml)throw new Error('未收到生成结果，请重试或检查渠道配置');
+
             if(botInnerHtml){
                 if(streamTextDiv && sessionId===currentSessionId) {
-                    const contentEl = document.getElementById('stream-text-content');
+                    const contentEl = document.getElementById(`stream-text-content-${sessionId}`);
                     if(contentEl) {
                         const textContent = contentEl.textContent || data.choices?.[0]?.message?.content || '';
                         const cleanText = textContent.replace(/正在加载图片\.\.\./g, '').replace(/\[图片生成中\.\.\.\]/g, '').trim();
@@ -2781,7 +2806,7 @@ function escapeHtml(text) { return text.replace(/[&<>"']/g, m => ({ '&': '&amp;'
                                 if(tempLoading)tempLoading.parentElement.remove();
 
                                 // 清理所有可能残留的流式响应div
-                                const streamDiv = document.getElementById('stream-text-content');
+                                const streamDiv = document.getElementById(`stream-text-content-${sessionId}`);
                                 if (streamDiv && streamDiv.closest('.message-row')) {
                                     streamDiv.closest('.message-row').remove();
                                 }
@@ -2814,7 +2839,7 @@ function escapeHtml(text) { return text.replace(/[&<>"']/g, m => ({ '&': '&amp;'
                     });
 
                     // 清理所有可能残留的流式响应div
-                    const streamDiv = document.getElementById('stream-text-content');
+                    const streamDiv = document.getElementById(`stream-text-content-${sessionId}`);
                     if (streamDiv && streamDiv.closest('.message-row')) {
                         streamDiv.closest('.message-row').remove();
                     }
@@ -2833,7 +2858,7 @@ function escapeHtml(text) { return text.replace(/[&<>"']/g, m => ({ '&': '&amp;'
             if(progressId) SmartProgressBar.stop(progressId);
 
             // 清理可能残留的流式响应div
-            const streamDiv = document.getElementById('stream-text-content');
+            const streamDiv = document.getElementById(`stream-text-content-${sessionId}`);
             if (streamDiv && streamDiv.closest('.message-row')) {
                 streamDiv.closest('.message-row').remove();
             }
@@ -2843,7 +2868,10 @@ function escapeHtml(text) { return text.replace(/[&<>"']/g, m => ({ '&': '&amp;'
                 previewDiv.closest('.message-row').remove();
             }
 
-            activeGenerations.delete(sessionId); renderSessionList(); let msg=e.message; try{const jsonErr=JSON.parse(e.message);if(jsonErr.error&&jsonErr.error.message)msg=jsonErr.error.message}catch(_){} const errorHtml=`<div class="msg-content" style="color:#d93025">❌ Error: ${escapeHtml(msg)}</div>`; const errorMsgId = await saveMessage(sessionId,'bot','Error',[],errorHtml); if(sessionId===currentSessionId){ if(loadingDiv)loadingDiv.remove(); appendMessageToUI('bot',errorHtml,'Error',[],errorMsgId) }
+            let msg=e.message; try{const jsonErr=JSON.parse(e.message);if(jsonErr.error&&jsonErr.error.message)msg=jsonErr.error.message}catch(_){} const errorHtml=`<div class="msg-content" style="color:#d93025">❌ Error: ${escapeHtml(msg)}</div>`; const errorMsgId = await saveMessage(sessionId,'bot','Error',[],errorHtml); if(sessionId===currentSessionId){ if(loadingDiv)loadingDiv.remove(); appendMessageToUI('bot',errorHtml,'Error',[],errorMsgId) }
+        } finally {
+            if(progressId) SmartProgressBar.stop(progressId);
+            if(loadingDiv) loadingDiv.remove();
         }
     }
 
@@ -2854,7 +2882,7 @@ function escapeHtml(text) { return text.replace(/[&<>"']/g, m => ({ '&': '&amp;'
         let fullContent = '';
         let textMessageDiv = null;
         
-        const existingStreamDiv = document.getElementById('stream-text-content');
+        const existingStreamDiv = document.getElementById(`stream-text-content-${sessionId}`);
         if (existingStreamDiv && existingStreamDiv.closest('.message-row')) {
             existingStreamDiv.closest('.message-row').remove();
         }
@@ -2883,10 +2911,10 @@ function escapeHtml(text) { return text.replace(/[&<>"']/g, m => ({ '&': '&amp;'
                                 
                                 if (!textMessageDiv && displayContent.trim() && !displayContent.match(/^data:image\//)) {
                                     if (loadingDiv) loadingDiv.remove();
-                                    const textHtml = '<div class="msg-content" style="padding:12px 18px; white-space:pre-wrap; font-family:monospace; font-size:13px; line-height:1.6;"><div id="stream-text-content"></div></div>';
+                                    const textHtml = `<div class="msg-content" style="padding:12px 18px; white-space:pre-wrap; font-family:monospace; font-size:13px; line-height:1.6;"><div id="stream-text-content-${sessionId}"></div></div>`;
                                     textMessageDiv = appendMessageToUI('bot', textHtml);
                                 }
-                                const contentEl = document.getElementById('stream-text-content');
+                                const contentEl = document.getElementById(`stream-text-content-${sessionId}`);
                                 if (contentEl && displayContent.trim()) {
                                     contentEl.textContent = displayContent;
                                     UI.chatHistory.scrollTop = UI.chatHistory.scrollHeight;

@@ -38,6 +38,7 @@ Author and maintainer: [durunsong](https://github.com/durunsong).
 | Multi-provider management | Configure multiple API providers with random preferred rotation |
 | Resolution & aspect ratio | 1K / 2K / 4K; Auto, 21:9, 16:9, 1:1, 9:16, and more |
 | Reference images | Upload references for image-to-image / edits |
+| Image count | Choose 1-4 images per prompt with a remembered preference; Images API uses native batches, while Gemini / Chat generates one at a time and keeps successful results in the conversation |
 | Conversation context | Optionally keep the last N turns for continuous creation |
 | Auto-save locally | Save generated images to a chosen local folder |
 | Dark mode | Toggle theme in Settings |
