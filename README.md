@@ -69,8 +69,8 @@
 | Windows | `GenForge-*-portable.exe` | 便携版，需手动下载新版本 |
 | Windows | `GenForge-*-win-x64.zip` | 解压后运行，需手动升级 |
 | macOS | `GenForge-*-mac-universal.dmg` | Intel + Apple Silicon 通用包 |
-| Linux | `GenForge-*-linux-x64.AppImage` | 推荐，可自动更新 |
-| Linux | `GenForge-*-linux-x64.deb` | Debian / Ubuntu 安装包 |
+| Linux | `GenForge-*-linux-x86_64.AppImage` | 推荐，可自动更新 |
+| Linux | `GenForge-*-linux-amd64.deb` | Debian / Ubuntu 安装包 |
 
 3. 安装后打开即可使用
 
@@ -92,8 +92,8 @@ xattr -cr /Applications/GenForge.app
 ### Linux AppImage
 
 ```bash
-chmod +x GenForge-*-linux-x64.AppImage
-./GenForge-*-linux-x64.AppImage
+chmod +x GenForge-*-linux-x86_64.AppImage
+./GenForge-*-linux-x86_64.AppImage
 ```
 
 ---
@@ -171,13 +171,13 @@ API Key 仅保存在本机，不会上传到本项目服务器。
 
 工作流位于 `.github/workflows/release.yml`。上传源码本身不会生成安装包；推送 `vX.Y.Z` 标签才会触发正式发布。当前流程只发布稳定版本，标签必须与 `package.json`、`package-lock.json` 的版本一致。
 
-1. 后续升级先执行 `npm version patch --no-git-tag-version`，同步更新两个版本文件；首次发布可直接使用当前 `1.0.2`。
+1. 后续升级先执行 `npm version patch --no-git-tag-version`，同步更新两个版本文件；首次发布可直接使用当前 `1.0.3`。
 2. 检查并提交本次发布涉及的文件，再打 tag（下面以首次发布为例）：
 
 ```bash
 # 先检查 git diff，并单独提交本次发布文件
-git tag v1.0.2
-git push origin v1.0.2
+git tag v1.0.3
+git push origin v1.0.3
 ```
 
 3. 在仓库 **Actions → Release** 查看进度：先验证版本，再并行生成 Windows EXE / 便携版 / ZIP、macOS 通用 DMG / ZIP、Linux AppImage / DEB。
@@ -192,7 +192,7 @@ git push origin v1.0.2
 
 手动正式发布时必须选择已存在且包含这套工作流的 `vX.Y.Z` 标签，并勾选 `publish`；不允许从分支发布。自动更新依赖的 `latest*.yml`、ZIP 和 `.blockmap` 会随安装包一同上传，请勿删除。
 
-发布检查：`npm run test:release`；只检查版本：`node scripts/prepare-release.cjs v1.0.2`。
+发布检查：`npm run test:release`；只检查版本：`node scripts/prepare-release.cjs v1.0.3`。
 
 ### 本地打包（不发布）
 

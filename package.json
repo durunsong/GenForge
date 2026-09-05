@@ -1,6 +1,6 @@
 {
   "name": "genforge",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "GenForge 多模型 AI 图像创作工作台",
   "main": "dist/main/main.js",
   "author": "durunsong",

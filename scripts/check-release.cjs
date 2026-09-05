@@ -26,7 +26,7 @@ test('release preparation checks all platforms, updater hashes and download link
   const packages = [
     `${prefix}-win-x64.exe`, `${prefix}-portable.exe`, `${prefix}-win-x64.zip`,
     `${prefix}-mac-universal.dmg`, `${prefix}-mac-universal.zip`,
-    `${prefix}-linux-x64.AppImage`, `${prefix}-linux-x64.deb`,
+    `${prefix}-linux-x86_64.AppImage`, `${prefix}-linux-amd64.deb`,
   ];
   const updaterFiles = {
     'latest.yml': packages[0],

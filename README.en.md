@@ -69,8 +69,8 @@ Author and maintainer: [durunsong](https://github.com/durunsong).
 | Windows | `GenForge-*-portable.exe` | Portable; manual updates |
 | Windows | `GenForge-*-win-x64.zip` | Extract and run; manual updates |
 | macOS | `GenForge-*-mac-universal.dmg` | Intel + Apple Silicon |
-| Linux | `GenForge-*-linux-x64.AppImage` | Recommended, auto-update |
-| Linux | `GenForge-*-linux-x64.deb` | Debian / Ubuntu |
+| Linux | `GenForge-*-linux-x86_64.AppImage` | Recommended, auto-update |
+| Linux | `GenForge-*-linux-amd64.deb` | Debian / Ubuntu |
 
 3. Install and launch
 
@@ -92,8 +92,8 @@ xattr -cr /Applications/GenForge.app
 ### Linux AppImage
 
 ```bash
-chmod +x GenForge-*-linux-x64.AppImage
-./GenForge-*-linux-x64.AppImage
+chmod +x GenForge-*-linux-x86_64.AppImage
+./GenForge-*-linux-x86_64.AppImage
 ```
 
 ---
@@ -171,13 +171,13 @@ Use **Check for updates** in Settings. When a new version is found, confirm to d
 
 The workflow is `.github/workflows/release.yml`. Pushing source code alone does not produce installers. Push a `vX.Y.Z` tag to publish a stable release; the tag, `package.json` and `package-lock.json` versions must match. Prerelease versions are not supported by this workflow.
 
-1. For subsequent releases, run `npm version patch --no-git-tag-version` to update both version files. The first release can use the current `1.0.2`.
+1. For subsequent releases, run `npm version patch --no-git-tag-version` to update both version files. The first release can use the current `1.0.3`.
 2. Review and commit the release files, then tag (first-release example):
 
 ```bash
 # Review git diff and commit only the intended release files first
-git tag v1.0.2
-git push origin v1.0.2
+git tag v1.0.3
+git push origin v1.0.3
 ```
 
 3. Monitor **Actions → Release**. CI validates the version and builds Windows EXE / portable / ZIP, macOS universal DMG / ZIP, and Linux AppImage / DEB in parallel.
@@ -192,7 +192,7 @@ After committing and pushing the workflow, open **Actions → Release → Run wo
 
 To publish manually, select an existing `vX.Y.Z` tag containing this workflow and enable `publish`. Publishing from a branch is rejected. Keep the uploaded `latest*.yml`, ZIP and `.blockmap` updater resources.
 
-Release checks: `npm run test:release`. Version-only check: `node scripts/prepare-release.cjs v1.0.2`.
+Release checks: `npm run test:release`. Version-only check: `node scripts/prepare-release.cjs v1.0.3`.
 
 ### Local package (no publish)
 

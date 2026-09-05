@@ -26,8 +26,8 @@ async function main() {
     ['Windows x64', 'ZIP 压缩包 / Archive', `${prefix}-win-x64.zip`],
     ['macOS Intel + Apple Silicon', '通用安装包 / Universal DMG', `${prefix}-mac-universal.dmg`],
     ['macOS Intel + Apple Silicon', 'ZIP / 更新资源', `${prefix}-mac-universal.zip`],
-    ['Linux x64', 'AppImage', `${prefix}-linux-x64.AppImage`],
-    ['Debian / Ubuntu x64', 'DEB 安装包', `${prefix}-linux-x64.deb`],
+    ['Linux x64', 'AppImage', `${prefix}-linux-x86_64.AppImage`],
+    ['Debian / Ubuntu x64', 'DEB 安装包', `${prefix}-linux-amd64.deb`],
   ];
   const updates = {
     'latest.yml': downloads[0][2],
