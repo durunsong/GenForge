@@ -62,7 +62,7 @@ const { chromium } = require('playwright');
     await trigger('p-model-select').focus();
     await page.keyboard.press('g');
     await page.keyboard.press('Enter');
-    assert.equal(await page.locator('#p-model').inputValue(), 'gpt-image-2', 'Type-ahead must select a matching option');
+    assert.equal(await page.locator('#p-model').inputValue(), 'gpt-image-2.5-flare', 'Type-ahead must select a matching option');
     await page.getByRole('button', { name: '清空并新增渠道', exact: true }).click();
     assert.equal(await page.locator('#p-model').inputValue(), '');
     assert.equal(await trigger('p-model-select').textContent(), '选择预设');

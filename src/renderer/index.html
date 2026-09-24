@@ -231,10 +231,16 @@
                             <div class="provider-model-fields">
                                 <select id="p-model-select" aria-label="预设模型" onchange="document.getElementById('p-model').value = this.value">
                                     <option value="">选择预设</option>
+                                    <option value="gpt-image-2.5-flare">gpt-image-2.5-flare</option>
+                                    <option value="gpt-image-2.5-sunburst">gpt-image-2.5-sunburst</option>
                                     <option value="gpt-image-2">gpt-image-2</option>
                                     <option value="gpt-image-1.5">gpt-image-1.5</option>
+                                    <option value="gemini-3.1-flash-image">gemini-3.1-flash-image</option>
+                                    <option value="gemini-3-pro-image">gemini-3-pro-image</option>
                                     <option value="gemini-2.5-flash-image">gemini-2.5-flash-image</option>
-                                    <option value="gemini-3-pro-image-preview">gemini-3-pro-image-preview</option>
+                                    <option value="grok-imagine-image-2.0">grok-imagine-image-2.0</option>
+                                    <option value="grok-imagine-image-quality">grok-imagine-image-quality</option>
+                                    <option value="grok-imagine-image">grok-imagine-image</option>
                                 </select>
                                 <input type="text" id="p-model" placeholder="自定义模型 ID" spellcheck="false" autocomplete="off">
                             </div>
@@ -391,8 +397,9 @@
                                 <label for="xhs-text-model">模型名称</label>
                                 <select class="xhs-input" id="xhs-text-model-select" aria-label="文案预设模型" onchange="document.getElementById('xhs-text-model').value = this.value">
                                     <option value="">选择预设</option>
+                                    <option value="gemini-3.1-flash-image">gemini-3.1-flash-image</option>
+                                    <option value="gemini-3-pro-image">gemini-3-pro-image</option>
                                     <option value="gemini-2.5-flash-image">gemini-2.5-flash-image</option>
-                                    <option value="gemini-3-pro-image-preview">gemini-3-pro-image-preview</option>
                                 </select>
                                 <input class="xhs-input" id="xhs-text-model" placeholder="输入或选择模型名称">
                             </div>

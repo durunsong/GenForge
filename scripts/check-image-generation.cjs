@@ -11,22 +11,22 @@ let browser;
 before(async () => { browser = await chromium.launch({ channel: 'chrome', headless: true }); });
 after(async () => { await browser?.close(); });
 
-async function openApp(t, type = 'images', storedCount) {
+async function openApp(t, type = 'images', storedCount, model) {
   const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
   t.after(() => page.close());
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
   t.after(() => assert.deepEqual(errors, [], 'No uncaught renderer errors'));
   await page.route('https://**/*', route => route.abort());
-  await page.addInitScript(({ type, storedCount }) => {
+  await page.addInitScript(({ type, storedCount, model }) => {
     localStorage.setItem('gemini_providers', JSON.stringify([{
       id: 'test', name: 'Test', type: type === 'gemini' ? 'gemini' : 'openai',
       openaiMode: type === 'chat' ? 'chat' : 'images', host: 'https://images.test',
-      key: 'test-only', model: type === 'images' ? 'gpt-image-1.5' : 'gemini-3-pro-image-preview',
+      key: 'test-only', model: model || (type === 'images' ? 'gpt-image-1.5' : 'gemini-3-pro-image-preview'),
     }]));
     localStorage.setItem('gemini_active_provider', 'test');
     if (storedCount !== undefined) localStorage.setItem('image_count', storedCount);
-  }, { type, storedCount });
+  }, { type, storedCount, model });
   await page.goto(appUrl);
   await page.waitForSelector('.session-item');
   return page;
@@ -319,4 +319,116 @@ test('A stream failure retains images that already completed and reports the err
   assert.equal(stored.images.length, 1);
   assert.match(stored.rawHtml, /Remaining images failed/);
   assert.match(stored.rawHtml, /1\/3/);
+});
+
+test('Grok Imagine 2.0 sends aspect ratio, resolution and quality without OpenAI image fields', async t => {
+  const page = await openApp(t, 'images', undefined, 'grok-imagine-image-2.0');
+  let request;
+  await page.route('https://images.test/v1/images/generations', async route => {
+    request = route.request().postDataJSON();
+    await route.fulfill({ json: { data: [{ b64_json: png }, { b64_json: png }] } });
+  });
+  await page.evaluate(() => { state.resolution = '1K'; state.aspectRatio = '16:9'; });
+  await page.locator('#stream-toggle').check();
+  await generate(page, 2);
+  await waitForMessages(page, 1);
+  assert.equal(request.model, 'grok-imagine-image-2.0');
+  assert.equal(request.n, 2);
+  assert.equal(request.response_format, 'b64_json');
+  assert.equal(request.aspect_ratio, '16:9');
+  assert.equal(request.resolution, '1k');
+  assert.equal(request.quality, 'low');
+  assert.equal(request.size, undefined);
+  assert.equal(request.output_format, undefined);
+  assert.equal(request.stream, undefined);
+  assert.equal(await page.evaluate(() => isGrokImageModel('grok-2-image-1212')), true);
+  assert.equal(await page.evaluate(() => isGrokImageModel('grok-4')), false);
+  assert.equal(await page.evaluate(() => getGrokAspectRatio({ aspectRatio: '5:4' })), '4:3');
+  assert.match(await page.evaluate(() => imageDataUri('/9j/abc')), /^data:image\/jpeg;base64,/);
+  assert.equal(await page.locator('.message-row.bot img.generated-image').count(), 2);
+  await page.evaluate(() => {
+    document.getElementById('p-name').value = 'xAI';
+    document.getElementById('p-type').value = 'openai';
+    ProviderManager.handleTypeChange('openai');
+    document.getElementById('p-openai-mode').value = 'chat';
+    document.getElementById('p-host').value = 'https://api.x.ai';
+    document.getElementById('p-key').value = 'test-only';
+    document.getElementById('p-model').value = 'grok-imagine-image-2.0';
+    ProviderManager.save();
+  });
+  assert.equal(await page.evaluate(() => ProviderManager.providers.at(-1).openaiMode), 'images');
+});
+
+test('Grok Imagine maps 4K to 2k and unsupported ratios, and omits quality outside 2.0', async t => {
+  const page = await openApp(t, 'images', undefined, 'grok-imagine-image');
+  let request;
+  await page.route('https://images.test/v1/images/generations', async route => {
+    request = route.request().postDataJSON();
+    await route.fulfill({ json: { data: [{ b64_json: png }] } });
+  });
+  await page.evaluate(() => { state.resolution = '4K'; state.aspectRatio = '4:5'; });
+  await generate(page, 1);
+  await waitForMessages(page, 1);
+  assert.equal(request.resolution, '2k');
+  assert.equal(request.aspect_ratio, '3:4');
+  assert.equal(request.quality, undefined);
+  assert.equal(request.n, undefined);
+});
+
+test('Grok reference edits use JSON, with one image or several', async t => {
+  const page = await openApp(t, 'images', undefined, 'grok-imagine-image-quality');
+  const bodies = [];
+  await page.route('https://images.test/v1/images/edits', async route => {
+    bodies.push(route.request().postDataJSON());
+    await route.fulfill({ json: { data: [{ b64_json: png }] } });
+  });
+  await page.evaluate(png => useAsReference(`data:image/png;base64,${png}`), png);
+  await generate(page, 1);
+  await waitForMessages(page, 1);
+  assert.equal(bodies.length, 1);
+  assert.match(bodies[0].image.url, /^data:image\/png;base64,/);
+  assert.equal(bodies[0].image.type, 'image_url');
+  assert.equal(bodies[0].images, undefined);
+  assert.equal(bodies[0].quality, undefined);
+  await page.evaluate(png => {
+    useAsReference(`data:image/png;base64,${png}`);
+    useAsReference(`data:image/png;base64,${png}`);
+  }, png);
+  await page.locator('#user-input').fill('Edit both references');
+  await page.locator('#send-btn').click();
+  await waitForMessages(page, 2);
+  assert.equal(bodies[1].images.length, 2);
+  assert.equal(bodies[1].image, undefined);
+});
+
+test('Grok rejects more than five reference images before calling the API', async t => {
+  const page = await openApp(t, 'images', undefined, 'grok-imagine-image-2.0');
+  let requests = 0;
+  await page.route('https://images.test/**', route => {
+    requests++;
+    return route.abort();
+  });
+  await page.evaluate(png => {
+    for (let index = 0; index < 6; index++) useAsReference(`data:image/png;base64,${png}`);
+  }, png);
+  await generate(page, 1);
+  await waitForMessages(page, 1);
+  assert.equal(requests, 0);
+  assert.match(await page.locator('.message-row.bot').textContent(), /5 张参考图/);
+});
+
+test('Grok downloads a temporary image URL when base64 is absent', async t => {
+  const page = await openApp(t, 'images', undefined, 'grok-imagine-image-2.0');
+  await page.route('https://images.test/v1/images/generations', route => route.fulfill({
+    json: { data: [{ url: 'https://cdn.test/generated.png' }] },
+  }));
+  await page.route('https://cdn.test/generated.png', route => route.fulfill({
+    contentType: 'image/png',
+    body: Buffer.from(png, 'base64'),
+  }));
+  await generate(page, 1);
+  await waitForMessages(page, 1);
+  assert.equal(await page.locator('.message-row.bot img.generated-image').count(), 1);
+  const stored = await page.evaluate(async () => (await getSessionMessages(currentSessionId)).at(-1));
+  assert.equal(stored.images.length, 1);
 });

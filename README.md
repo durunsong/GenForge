@@ -36,7 +36,7 @@
 
 | 能力 | 说明 |
 |------|------|
-| 多模型生图 | 支持 Gemini 图像模型、GPT Image 等，通过 OpenAI 兼容或 Gemini 原生接口接入 |
+| 多模型生图 | 支持 Gemini 图像模型、GPT Image、Grok Imagine，通过 OpenAI 兼容或 Gemini 原生接口接入 |
 | 多渠道管理 | 可配置多个 API 渠道，支持随机优选自动轮询 |
 | 分辨率与比例 | 1K / 2K / 4K，以及 Auto、21:9、16:9、1:1、9:16 等多种长宽比 |
 | 参考图上传 | 上传参考图进行图生图 / 编辑 |
@@ -138,13 +138,14 @@ npm start
 |----------|----------|
 | Gemini 原生接口 | 直连 Gemini |
 | OpenAI 兼容 · Chat Completions | 多数 Gemini 图像代理、兼容旧逻辑 |
-| OpenAI 兼容 · Images API | `gpt-image-*` 等，走 `/v1/images/generations` / `edits` |
+| OpenAI 兼容 · Images API | `gpt-image-*`、`grok-imagine-image*` 等，走 `/v1/images/generations` / `edits` |
 
 ### 配置要点
 
 - **Base URL** 填写域名根路径，不要带 `/v1`（例如 `https://api.example.com`）
-- 预设模型可选：`gpt-image-2`、`gpt-image-1.5`、`gemini-2.5-flash-image`、`gemini-3-pro-image-preview`，也可自定义
+- 预设模型可选：`gpt-image-2.5-flare`、`gpt-image-2.5-sunburst`、`gpt-image-2`、`gpt-image-1.5`、`gemini-3.1-flash-image`、`gemini-3-pro-image`、`gemini-2.5-flash-image`、`grok-imagine-image-2.0`、`grok-imagine-image-quality`、`grok-imagine-image`，也可自定义
 - 选择 **Images API** 后：无参考图走 `/v1/images/generations`，有参考图走 `/v1/images/edits`
+- Grok Imagine 的 Base URL 填 `https://api.x.ai`。分辨率只支持 1K / 2K，界面选 4K 时按 2K 请求；`5:4`、`4:5` 分别按 `4:3`、`3:4` 请求。参考图以 JSON 提交，单次最多 5 张。`quality` 只发给 `grok-imagine-image-2.0`（1K 为 `low`，2K / 4K 为 `medium`）
 - 可添加多个渠道，并选择「随机优选」自动轮询
 
 API Key 仅保存在本机，不会上传到本项目服务器。

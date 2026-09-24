@@ -36,7 +36,7 @@ Author and maintainer: [durunsong](https://github.com/durunsong).
 
 | Capability | Description |
 |------------|-------------|
-| Multi-model generation | Gemini image models, GPT Image, via OpenAI-compatible or native Gemini APIs |
+| Multi-model generation | Gemini image models, GPT Image, and Grok Imagine, via OpenAI-compatible or native Gemini APIs |
 | Multi-provider management | Configure multiple API providers with random preferred rotation |
 | Resolution & aspect ratio | 1K / 2K / 4K; Auto, 21:9, 16:9, 1:1, 9:16, and more |
 | Reference images | Upload references for image-to-image / edits |
@@ -138,13 +138,14 @@ Settings → **API Providers**:
 |----------|-------------|
 | Native Gemini | Direct Gemini endpoints |
 | OpenAI-compatible · Chat Completions | Most Gemini image proxies / legacy flow |
-| OpenAI-compatible · Images API | `gpt-image-*`, via `/v1/images/generations` / `edits` |
+| OpenAI-compatible · Images API | `gpt-image-*` and `grok-imagine-image*`, via `/v1/images/generations` / `edits` |
 
 ### Notes
 
 - **Base URL** should be the host root **without** `/v1` (e.g. `https://api.example.com`)
-- Preset models: `gpt-image-2`, `gpt-image-1.5`, `gemini-2.5-flash-image`, `gemini-3-pro-image-preview` (custom names allowed)
+- Preset models: `gpt-image-2.5-flare`, `gpt-image-2.5-sunburst`, `gpt-image-2`, `gpt-image-1.5`, `gemini-3.1-flash-image`, `gemini-3-pro-image`, `gemini-2.5-flash-image`, `grok-imagine-image-2.0`, `grok-imagine-image-quality`, `grok-imagine-image` (custom names allowed)
 - With **Images API**: no reference → `/v1/images/generations`; with reference → `/v1/images/edits`
+- For Grok Imagine, set Base URL to `https://api.x.ai`. Resolution is 1K or 2K; a 4K choice is sent as 2K. `5:4` and `4:5` are sent as `4:3` and `3:4`. Reference images are JSON, with at most 5 per request. `quality` is sent only for `grok-imagine-image-2.0` (`low` at 1K, `medium` at 2K / 4K)
 - Add multiple providers and use “Random preferred” for rotation
 
 API keys are stored locally only; they are not uploaded to this project’s servers.

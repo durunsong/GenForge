@@ -1775,12 +1775,19 @@ function escapeHtml(text) { return text.replace(/[&<>"']/g, m => ({ '&': '&amp;'
                 : '2K';
         },
         shortName(model = '') {
+            if (/gpt-image-2\.5-flare/i.test(model)) return 'GPT Image 2.5 Flare';
+            if (/gpt-image-2\.5-sunburst/i.test(model)) return 'GPT Image 2.5 Sunburst';
             if (/gpt-image-2/i.test(model)) return 'GPT Image 2';
             if (/gpt-image-1\.5/i.test(model)) return 'GPT Image 1.5';
             if (/gpt-image-1/i.test(model)) return 'GPT Image 1';
             if (/dall-e-3/i.test(model)) return 'DALL·E 3';
+            if (/gemini-3\.1-flash-image/i.test(model)) return 'Gemini 3.1 Flash';
             if (/gemini-3-pro-image/i.test(model)) return 'Gemini 3 Pro';
             if (/gemini-2\.5-flash-image/i.test(model)) return 'Gemini 2.5 Flash';
+            if (/grok-imagine-image-2\.0/i.test(model)) return 'Grok Imagine 2.0';
+            if (/grok-imagine-image-quality/i.test(model)) return 'Grok Imagine Quality';
+            if (/grok-imagine-image/i.test(model)) return 'Grok Imagine';
+            if (/grok-2-image/i.test(model)) return 'Grok Image';
             return model;
         },
         update() {
@@ -1974,7 +1981,7 @@ function escapeHtml(text) { return text.replace(/[&<>"']/g, m => ({ '&': '&amp;'
                         type:'gemini',
                         host:oldHost,
                         key:localStorage.getItem('api-key')||'',
-                        model:localStorage.getItem('model-name')||'gemini-3-pro-image-preview'
+                        model:localStorage.getItem('model-name')||'gemini-3-pro-image'
                     }));
                     this.saveToStorage();
                 }
@@ -2071,8 +2078,8 @@ function escapeHtml(text) { return text.replace(/[&<>"']/g, m => ({ '&': '&amp;'
             const model=document.getElementById('p-model').value.trim();
             let openaiMode=document.getElementById('p-openai-mode')?.value||'chat';
             if(!name||!host||!key||!model){alert("所有字段必填");return}
-            // GPT Image 模型默认走 Images API，避免 Chat Completions 报错
-            if(type==='openai' && /gpt-image|dall-e|dalle/i.test(model) && openaiMode!=='images'){
+            // GPT Image 与 Grok Imagine 默认走 Images API，避免 Chat Completions 报错
+            if(type==='openai' && /gpt-image|dall-e|dalle|grok-(?:imagine-image|2-image)/i.test(model) && openaiMode!=='images'){
                 openaiMode='images';
                 const modeSelect=document.getElementById('p-openai-mode');
                 if(modeSelect)modeSelect.value='images';
@@ -2269,7 +2276,7 @@ function escapeHtml(text) { return text.replace(/[&<>"']/g, m => ({ '&': '&amp;'
             }
             renderSessionList();
 
-            const nativeBatch = config.type === 'openai' && config.openaiMode === 'images';
+            const nativeBatch = config.type === 'openai' && (config.openaiMode === 'images' || isGrokImageModel(config.model));
             const attempts = nativeBatch ? 1 : options.imageCount;
             // Keep every request in a batch on the same settings and pre-generation history.
             for(let index = 0; index < attempts; index++){
@@ -2377,6 +2384,107 @@ function escapeHtml(text) { return text.replace(/[&<>"']/g, m => ({ '&': '&amp;'
 
     async function maybePostProcessGeneratedImage(config,fullBase64,mimeType){
         return fullBase64;
+    }
+
+    function isGrokImageModel(model=''){
+        return /grok-(?:imagine-image|2-image)/i.test(String(model));
+    }
+
+    function getGrokImageResolution(options){
+        const resolution=String(options.resolution||'').toLowerCase();
+        return resolution.includes('1k')||resolution.includes('1024')?'1k':'2k';
+    }
+
+    function getGrokAspectRatio(options){
+        const ratio=options.aspectRatio||'auto';
+        if(ratio==='5:4')return'4:3';
+        if(ratio==='4:5')return'3:4';
+        const supported=new Set(['auto','1:1','16:9','9:16','4:3','3:4','3:2','2:3','2:1','1:2','19.5:9','9:19.5','20:9','9:20','21:9','5:2']);
+        return supported.has(ratio)?ratio:'auto';
+    }
+
+    function getGrokImageQuality(model,options){
+        if(!/grok-imagine-image-2\.0/i.test(model))return undefined;
+        const resolution=String(options.resolution||'').toLowerCase();
+        return resolution.includes('1k')||resolution.includes('1024')?'low':'medium';
+    }
+
+    function imageDataUri(base64){
+        const mime=base64.startsWith('iVBORw0KGgo')?'image/png':base64.startsWith('UklGR')?'image/webp':'image/jpeg';
+        return `data:${mime};base64,${base64}`;
+    }
+
+    async function hydrateRemoteImageData(payload){
+        const items=Array.isArray(payload?.data)?payload.data:[];
+        for(const item of items){
+            if(item?.b64_json||typeof item?.url!=='string')continue;
+            const imageRes=await nativeFetch(item.url);
+            if(!imageRes.ok)throw new Error(`无法下载生成图片：HTTP ${imageRes.status}`);
+            const bytes=new Uint8Array(await imageRes.arrayBuffer());
+            let binary='';
+            for(let offset=0;offset<bytes.length;offset+=0x8000){
+                binary+=String.fromCharCode(...bytes.subarray(offset,offset+0x8000));
+            }
+            item.b64_json=btoa(binary);
+            const contentType=(imageRes.headers.get('content-type')||'').toLowerCase();
+            if(contentType.includes('png'))item.output_format='png';
+            else if(contentType.includes('webp'))item.output_format='webp';
+            else if(contentType.includes('jpeg')||contentType.includes('jpg'))item.output_format='jpeg';
+        }
+    }
+
+    async function processGrokImagesApi(config,text,imagesBase64,loadingDiv,sessionId,options){
+        if(imagesBase64.length>5)throw new Error('Grok Imagine 单次最多使用 5 张参考图');
+        const prompt=buildOpenAIImagePrompt(text,options);
+        const isEditMode=imagesBase64.length>0;
+        const quality=getGrokImageQuality(config.model,options);
+        const payload={
+            model:config.model,
+            prompt,
+            response_format:'b64_json',
+            aspect_ratio:getGrokAspectRatio(options),
+            resolution:getGrokImageResolution(options),
+            ...(quality?{quality}:{}),
+            ...(options.imageCount>1?{n:options.imageCount}:{})
+        };
+        if(isEditMode){
+            const refs=imagesBase64.map(b64=>({url:imageDataUri(b64),type:'image_url'}));
+            if(refs.length===1)payload.image=refs[0];
+            else payload.images=refs;
+        }
+        const requestUrl=`${normalizeOpenAIHost(config.host)}${isEditMode?'/v1/images/edits':'/v1/images/generations'}`;
+        const res=await nativeFetch(requestUrl,{
+            method:'POST',
+            headers:{
+                'Authorization':`Bearer ${config.key}`,
+                'Content-Type':'application/json',
+                'Accept':'application/json'
+            },
+            body:JSON.stringify(payload)
+        });
+        if(!res.ok){
+            let errorMessage=`HTTP ${res.status}: ${res.statusText}`;
+            try{errorMessage=JSON.stringify(await res.json())}catch(_){}
+            if(res.status===400&&options.imageCount>1&&/Unknown parameter:\s*['"]tools\[0\]\.n['"]/.test(errorMessage)){
+                const parts=[];
+                const errors=[];
+                for(let index=0;index<options.imageCount;index++){
+                    try{
+                        const result=await processGrokImagesApi(config,text,imagesBase64,loadingDiv,sessionId,{...options,imageCount:1});
+                        parts.push(...result.candidates[0].content.parts);
+                    }catch(error){
+                        errors.push(error.message);
+                        break;
+                    }
+                }
+                if(!parts.length)throw new Error(errors.join('; '));
+                return {candidates:[{content:{parts}}],streamError:errors.join('; ')};
+            }
+            throw new Error(errorMessage);
+        }
+        const body=await res.json();
+        await hydrateRemoteImageData(body);
+        return normalizeOpenAIImagesApiResponse(body,'image/jpeg');
     }
 
     function getOpenAIOutputMime(outputFormat='png'){
@@ -2610,8 +2718,10 @@ function escapeHtml(text) { return text.replace(/[&<>"']/g, m => ({ '&': '&amp;'
         try{
             let data;
             if (config.type === 'openai') {
-                if ((config.openaiMode || 'chat') === 'images') {
-                    data = await processOpenAIImagesApi(config, text, imagesBase64, loadingDiv, sessionId, options);
+                if ((config.openaiMode || 'chat') === 'images' || isGrokImageModel(config.model)) {
+                    data = isGrokImageModel(config.model)
+                        ? await processGrokImagesApi(config, text, imagesBase64, loadingDiv, sessionId, options)
+                        : await processOpenAIImagesApi(config, text, imagesBase64, loadingDiv, sessionId, options);
                 } else {
                     // 构建消息数组
                     let messages = [];
