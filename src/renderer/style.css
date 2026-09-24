@@ -1156,6 +1156,9 @@
             pointer-events: auto;
         }
         .input-wrapper:focus-within { border-color: var(--primary-color); }
+        .input-wrapper textarea:focus,
+        .input-wrapper textarea:focus-visible { outline: none; }
+        [data-theme="dark"] .input-wrapper:focus-within { border-color: var(--primary-color) !important; }
         .input-wrapper.drag-over { 
             background: var(--hover-color) !important; 
             border-color: var(--primary-color) !important; 
