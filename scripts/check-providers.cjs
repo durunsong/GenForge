@@ -34,6 +34,10 @@ const { chromium } = require('playwright');
     assert.equal(await page.locator('.provider-content').getByLabel('模型名称', { exact: true }).inputValue(), 'gpt-image-1.5');
     await page.getByRole('button', { name: '保存渠道', exact: true }).click();
     assert.equal(await page.locator('.provider-item').count(), 1);
+    assert.equal(await page.locator('.provider-item').getAttribute('aria-pressed'), 'true', 'Saving a provider selects it without another click');
+    assert.equal(await page.locator('#p-name').inputValue(), 'Primary');
+    assert.equal(await page.locator('#provider-select').inputValue(), await page.evaluate(() => ProviderManager.providers[0].id));
+    assert.match(await page.locator('.provider-item').textContent(), /使用中/);
     assert.match(await trigger('provider-select').textContent(), /Primary/);
 
     await page.locator('.provider-item').focus();
@@ -44,6 +48,8 @@ const { chromium } = require('playwright');
     await page.locator('.provider-content').getByLabel('渠道名称', { exact: true }).fill('Primary updated');
     await page.getByRole('button', { name: '保存渠道', exact: true }).click();
     assert.match(await page.locator('.provider-item').textContent(), /Primary updated/);
+    assert.equal(await page.locator('#provider-select').inputValue(), await page.evaluate(() => ProviderManager.providers[0].id), 'Updating a provider keeps it selected');
+    assert.equal(await page.locator('.provider-item').getAttribute('aria-pressed'), 'true');
 
     await trigger('provider-select').focus();
     await page.keyboard.press('ArrowDown');

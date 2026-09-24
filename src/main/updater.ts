@@ -1,5 +1,9 @@
+import { spawn, spawnSync } from 'child_process';
+import fs from 'fs';
+import path from 'path';
 import { BrowserWindow, app, ipcMain } from 'electron';
-import { autoUpdater, type UpdateInfo, type ProgressInfo } from 'electron-updater';
+import { autoUpdater, type UpdateDownloadedEvent, type UpdateInfo, type ProgressInfo } from 'electron-updater';
+import { buildUnsignedMacUpdateScript, macAppBundleFromExecPath } from './mac-update';
 
 const isDev = !app.isPackaged;
 
@@ -29,6 +33,11 @@ function focusMainWindow(getMainWindow: () => BrowserWindow | null): void {
   win.focus();
 }
 
+function hasDeveloperIdSignature(bundle: string): boolean {
+  const result = spawnSync('codesign', ['-dv', bundle], { encoding: 'utf8' });
+  return /Authority=Developer ID Application:/.test(`${result.stdout || ''}\n${result.stderr || ''}`);
+}
+
 export function setupAutoUpdater(getMainWindow: () => BrowserWindow | null): void {
   ipcMain.handle('update:get-version', () => app.getVersion());
 
@@ -40,9 +49,59 @@ export function setupAutoUpdater(getMainWindow: () => BrowserWindow | null): voi
     return;
   }
 
+  let downloadedFile = '';
+  let downloadedVersion = '';
+  let installing = false;
+  let replaceOnQuit = false;
+  if (process.platform === 'darwin') {
+    try {
+      replaceOnQuit = !hasDeveloperIdSignature(macAppBundleFromExecPath(process.execPath));
+    } catch (error) {
+      console.warn('[updater] mac bundle is not replaceable:', error);
+    }
+  }
+
   autoUpdater.autoDownload = false;
-  autoUpdater.autoInstallOnAppQuit = true;
+  autoUpdater.autoInstallOnAppQuit = !replaceOnQuit;
   autoUpdater.allowDowngrade = false;
+
+  const launchUnsignedMacReplace = (bundle: string): void => {
+    if (!downloadedFile || !downloadedVersion) throw new Error('更新文件还没有下载完成');
+    const directory = app.getPath('temp');
+    const script = buildUnsignedMacUpdateScript({
+      pid: process.pid,
+      zipPath: downloadedFile,
+      bundlePath: bundle,
+      version: downloadedVersion,
+      logPath: path.join(directory, 'genforge-update.log'),
+    });
+    const scriptPath = path.join(directory, `genforge-update-${process.pid}.sh`);
+    fs.writeFileSync(scriptPath, script, { mode: 0o755 });
+    installing = true;
+    const child = spawn('/bin/sh', [scriptPath], { detached: true, stdio: 'ignore' });
+    child.unref();
+  };
+
+  const installDownloadedUpdate = (): { ok: boolean; message?: string } => {
+    try {
+      if (process.platform === 'darwin') {
+        const bundle = macAppBundleFromExecPath(process.execPath);
+        if (!hasDeveloperIdSignature(bundle)) {
+          if (!installing) launchUnsignedMacReplace(bundle);
+          app.quit();
+          return { ok: true };
+        }
+      }
+      installing = true;
+      autoUpdater.quitAndInstall(false, true);
+      return { ok: true };
+    } catch (error) {
+      installing = false;
+      const message = error instanceof Error ? error.message : String(error);
+      send(getMainWindow(), 'update:error', { message });
+      return { ok: false, message };
+    }
+  };
 
   autoUpdater.on('checking-for-update', () => {
     send(getMainWindow(), 'update:checking');
@@ -73,7 +132,9 @@ export function setupAutoUpdater(getMainWindow: () => BrowserWindow | null): voi
     });
   });
 
-  autoUpdater.on('update-downloaded', (info: UpdateInfo) => {
+  autoUpdater.on('update-downloaded', (info: UpdateDownloadedEvent) => {
+    downloadedFile = info.downloadedFile || downloadedFile;
+    downloadedVersion = info.version;
     focusMainWindow(getMainWindow);
     send(getMainWindow(), 'update:downloaded', {
       version: info.version,
@@ -101,7 +162,8 @@ export function setupAutoUpdater(getMainWindow: () => BrowserWindow | null): voi
 
   ipcMain.handle('update:download', async () => {
     try {
-      await autoUpdater.downloadUpdate();
+      const files = await autoUpdater.downloadUpdate();
+      if (!downloadedFile && Array.isArray(files) && files[0]) downloadedFile = files[0];
       return { ok: true };
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
@@ -109,9 +171,15 @@ export function setupAutoUpdater(getMainWindow: () => BrowserWindow | null): voi
     }
   });
 
-  ipcMain.handle('update:install', () => {
-    autoUpdater.quitAndInstall(false, true);
-    return { ok: true };
+  ipcMain.handle('update:install', () => installDownloadedUpdate());
+
+  app.on('before-quit', () => {
+    if (!replaceOnQuit || installing || !downloadedFile) return;
+    try {
+      launchUnsignedMacReplace(macAppBundleFromExecPath(process.execPath));
+    } catch (error) {
+      console.warn('[updater] unsigned install skipped:', error);
+    }
   });
 
   // Delay first check so UI can load; then recheck every 6 hours

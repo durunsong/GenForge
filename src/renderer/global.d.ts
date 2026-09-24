@@ -13,7 +13,7 @@ declare global {
       getAppVersion: () => Promise<string>;
       checkForUpdates: () => Promise<{ ok: boolean; version?: string; message?: string }>;
       downloadUpdate: () => Promise<{ ok: boolean; message?: string }>;
-      installUpdate: () => Promise<{ ok: boolean }>;
+      installUpdate: () => Promise<{ ok: boolean; message?: string }>;
       onUpdateEvent: (
         channel:
           | 'update:checking'

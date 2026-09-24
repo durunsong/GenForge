@@ -158,7 +158,7 @@ API Key 仅保存在本机，不会上传到本项目服务器。
 |--------|----------|
 | Windows NSIS 安装版 | ✅ |
 | Windows 便携版 | ❌ 请用安装版，或手动下载 Releases |
-| macOS（dmg + zip） | 需要代码签名；当前未签名版本请手动升级 |
+| macOS（dmg + zip） | ✅ 需从「应用程序」打开；未签名版本会在退出后替换应用并重新打开 |
 | Linux AppImage | ✅ |
 | Linux deb | 建议手动升级 |
 
@@ -183,7 +183,7 @@ git push origin v1.0.3
 
 3. 在仓库 **Actions → Release** 查看进度：先验证版本，再并行生成 Windows EXE / 便携版 / ZIP、macOS 通用 DMG / ZIP、Linux AppImage / DEB。
 4. 三端全部成功后，检查安装包、更新元数据及哈希，生成下载表格、安装说明、SHA-256 校验文件和 GitHub 更新记录。全部资源上传至草稿成功后，才公开 Release。
-5. Windows 安装版与 Linux AppImage 可使用应用内更新；macOS 当前未签名版本请从 Release 手动升级。
+5. Windows 安装版、Linux AppImage，以及已放到「应用程序」的 macOS 版本可使用应用内更新。直接在磁盘映像里运行时，macOS 无法替换应用。
 
 任一平台失败不会发布不完整版本；上传失败保留草稿，可在 Actions 重跑。已公开的同名版本不会被覆盖，请提升版本号。GitHub Actions 使用内置 `GITHUB_TOKEN`，无需添加个人令牌；仓库须启用 Actions 并允许工作流写入 Releases。
 

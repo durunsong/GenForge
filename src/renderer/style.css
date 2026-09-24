@@ -20,7 +20,7 @@
             --xhs-color: #ff2e4d;
             --banana-color: #f59e0b;
         }
-        
+
         /* 暗黑模式 */
         [data-theme="dark"] {
             color-scheme: dark;
@@ -39,7 +39,7 @@
             --scrollbar-thumb: #5f6368;
             --scrollbar-thumb-hover: #80868b;
         }
-        
+
         /* 暗黑模式全局覆盖 */
         [data-theme="dark"] body,
         [data-theme="dark"] .main-area,
@@ -47,19 +47,19 @@
         [data-theme="dark"] .input-area,
         [data-theme="dark"] .xhs-middle,
         [data-theme="dark"] .xhs-right,
-        [data-theme="dark"] .banana-workspace { 
-            background-color: var(--bg-color) !important; 
-            color: var(--text-main) !important; 
+        [data-theme="dark"] .banana-workspace {
+            background-color: var(--bg-color) !important;
+            color: var(--text-main) !important;
         }
-        
+
         [data-theme="dark"] .sidebar-nav,
         [data-theme="dark"] .settings-sidebar,
         [data-theme="dark"] .xhs-sidebar,
-        [data-theme="dark"] .settings-inner { 
-            background-color: var(--bg-secondary) !important; 
-            border-color: var(--border-color) !important; 
+        [data-theme="dark"] .settings-inner {
+            background-color: var(--bg-secondary) !important;
+            border-color: var(--border-color) !important;
         }
-        
+
         [data-theme="dark"] .new-chat-btn,
         [data-theme="dark"] .session-item,
         [data-theme="dark"] .config-btn,
@@ -68,67 +68,67 @@
         [data-theme="dark"] .preview-item,
         [data-theme="dark"] .shot-card,
         [data-theme="dark"] .ratio-card,
-        [data-theme="dark"] .banana-card { 
-            border-color: var(--border-color) !important; 
-            color: var(--text-main) !important; 
+        [data-theme="dark"] .banana-card {
+            border-color: var(--border-color) !important;
+            color: var(--text-main) !important;
         }
-        
+
         /* 工具按钮暗黑模式 */
-        [data-theme="dark"] .tool-btn { 
-            background: var(--card-bg) !important; 
-            color: var(--text-main) !important; 
-            border-color: var(--border-color) !important; 
+        [data-theme="dark"] .tool-btn {
+            background: var(--card-bg) !important;
+            color: var(--text-main) !important;
+            border-color: var(--border-color) !important;
         }
-        
-        [data-theme="dark"] .tool-btn:hover { 
-            background: var(--hover-color) !important; 
-            color: var(--primary-color) !important; 
-            border-color: var(--primary-color) !important; 
+
+        [data-theme="dark"] .tool-btn:hover {
+            background: var(--hover-color) !important;
+            color: var(--primary-color) !important;
+            border-color: var(--primary-color) !important;
         }
-        
-        [data-theme="dark"] .tool-btn.download { 
-            color: var(--primary-color) !important; 
+
+        [data-theme="dark"] .tool-btn.download {
+            color: var(--primary-color) !important;
         }
-        
-        [data-theme="dark"] .tool-btn.slice-btn { 
-            background: #4a2626 !important; 
-            color: #ff6b6b !important; 
-            border-color: #7c3030 !important; 
+
+        [data-theme="dark"] .tool-btn.slice-btn {
+            background: #4a2626 !important;
+            color: #ff6b6b !important;
+            border-color: #7c3030 !important;
         }
-        
-        [data-theme="dark"] .tool-btn.slice-btn:hover { 
-            background: #5c3838 !important; 
-            border-color: #ff6b6b !important; 
+
+        [data-theme="dark"] .tool-btn.slice-btn:hover {
+            background: #5c3838 !important;
+            border-color: #ff6b6b !important;
         }
-        
+
         [data-theme="dark"] .new-chat-btn:hover,
         [data-theme="dark"] .session-item:hover,
         [data-theme="dark"] .config-btn:hover,
-        [data-theme="dark"] .provider-item:hover { 
-            background: var(--hover-color) !important; 
+        [data-theme="dark"] .provider-item:hover {
+            background: var(--hover-color) !important;
         }
-        
-        [data-theme="dark"] .session-item.active { 
-            background: var(--hover-color) !important; 
-            color: var(--primary-color) !important; 
+
+        [data-theme="dark"] .session-item.active {
+            background: var(--hover-color) !important;
+            color: var(--primary-color) !important;
             border-color: var(--primary-color) !important;
         }
-        
-        [data-theme="dark"] .session-item.active::before { 
-            background: var(--primary-color) !important; 
+
+        [data-theme="dark"] .session-item.active::before {
+            background: var(--primary-color) !important;
         }
-        
-        [data-theme="dark"] .message-row.user .msg-content { 
-            background: var(--bg-tertiary) !important; 
-            color: var(--text-main) !important; 
-        }
-        
-        [data-theme="dark"] .message-row.bot .msg-content { 
-            background: var(--card-bg) !important; 
-            border-color: var(--border-color) !important; 
+
+        [data-theme="dark"] .message-row.user .msg-content {
+            background: var(--bg-tertiary) !important;
             color: var(--text-main) !important;
         }
-        
+
+        [data-theme="dark"] .message-row.bot .msg-content {
+            background: var(--card-bg) !important;
+            border-color: var(--border-color) !important;
+            color: var(--text-main) !important;
+        }
+
         [data-theme="dark"] textarea,
         [data-theme="dark"] input[type="text"],
         [data-theme="dark"] input[type="password"],
@@ -136,200 +136,200 @@
         [data-theme="dark"] .config-input,
         [data-theme="dark"] .xhs-input,
         [data-theme="dark"] .provider-selector,
-        [data-theme="dark"] .input-wrapper { 
-            background: var(--input-bg) !important; 
-            border-color: var(--border-color) !important; 
-            color: var(--text-main) !important; 
-        }
-        
-        [data-theme="dark"] textarea::placeholder,
-        [data-theme="dark"] input::placeholder { 
-            color: var(--text-sub) !important; 
-        }
-        
-        [data-theme="dark"] .provider-item.selected { 
-            background: var(--hover-color) !important; 
+        [data-theme="dark"] .input-wrapper {
+            background: var(--input-bg) !important;
+            border-color: var(--border-color) !important;
             color: var(--text-main) !important;
         }
-        
-        [data-theme="dark"] .thought-box { 
-            background: var(--card-bg) !important; 
-            border-color: var(--border-color) !important; 
+
+        [data-theme="dark"] textarea::placeholder,
+        [data-theme="dark"] input::placeholder {
+            color: var(--text-sub) !important;
         }
-        
-        [data-theme="dark"] .thought-box summary { 
-            color: var(--text-sub) !important; 
+
+        [data-theme="dark"] .provider-item.selected {
+            background: var(--hover-color) !important;
+            color: var(--text-main) !important;
         }
-        
-        [data-theme="dark"] .loading-spinner { 
-            border-color: var(--border-color) !important; 
-            border-top-color: var(--primary-color) !important; 
+
+        [data-theme="dark"] .thought-box {
+            background: var(--card-bg) !important;
+            border-color: var(--border-color) !important;
         }
-        
+
+        [data-theme="dark"] .thought-box summary {
+            color: var(--text-sub) !important;
+        }
+
+        [data-theme="dark"] .loading-spinner {
+            border-color: var(--border-color) !important;
+            border-top-color: var(--primary-color) !important;
+        }
+
         [data-theme="dark"] .modal-content,
         [data-theme="dark"] .xhs-modal-content,
-        [data-theme="dark"] .lightbox-content { 
-            background: var(--card-bg) !important; 
+        [data-theme="dark"] .lightbox-content {
+            background: var(--card-bg) !important;
         }
-        
+
         [data-theme="dark"] .modal-overlay,
         [data-theme="dark"] .xhs-modal-overlay,
-        [data-theme="dark"] .lightbox { 
-            background: rgba(0,0,0,0.85) !important; 
+        [data-theme="dark"] .lightbox {
+            background: rgba(0,0,0,0.85) !important;
         }
-        
+
         [data-theme="dark"] .config-label,
-        [data-theme="dark"] label { 
-            color: var(--text-sub) !important; 
+        [data-theme="dark"] label {
+            color: var(--text-sub) !important;
         }
-        
+
         [data-theme="dark"] .brand-area,
         [data-theme="dark"] .header-icon-btn,
         [data-theme="dark"] .icon-btn,
-        [data-theme="dark"] .session-delete { 
-            color: var(--text-sub) !important; 
+        [data-theme="dark"] .session-delete {
+            color: var(--text-sub) !important;
         }
-        
+
         [data-theme="dark"] .header-icon-btn:hover,
-        [data-theme="dark"] .icon-btn:hover { 
-            background: var(--hover-color) !important; 
-            color: var(--text-main) !important; 
+        [data-theme="dark"] .icon-btn:hover {
+            background: var(--hover-color) !important;
+            color: var(--text-main) !important;
         }
-        
-        [data-theme="dark"] .session-delete:hover { 
-            background: var(--hover-color) !important; 
-            color: #ff6b6b !important; 
+
+        [data-theme="dark"] .session-delete:hover {
+            background: var(--hover-color) !important;
+            color: #ff6b6b !important;
         }
-        
-        [data-theme="dark"] .config-btn.primary { 
-            background: var(--primary-color) !important; 
-            color: var(--bg-color) !important; 
-            border-color: var(--primary-color) !important; 
+
+        [data-theme="dark"] .config-btn.primary {
+            background: var(--primary-color) !important;
+            color: var(--bg-color) !important;
+            border-color: var(--primary-color) !important;
         }
-        
-        [data-theme="dark"] .config-btn.danger { 
-            background: #5c2020 !important; 
-            color: #ff6b6b !important; 
-            border-color: #7c3030 !important; 
+
+        [data-theme="dark"] .config-btn.danger {
+            background: #5c2020 !important;
+            color: #ff6b6b !important;
+            border-color: #7c3030 !important;
         }
-        
-        [data-theme="dark"] .config-btn:not(.primary):not(.danger) { 
-            background: var(--card-bg) !important; 
-            color: var(--text-main) !important; 
-            border-color: var(--border-color) !important; 
+
+        [data-theme="dark"] .config-btn:not(.primary):not(.danger) {
+            background: var(--card-bg) !important;
+            color: var(--text-main) !important;
+            border-color: var(--border-color) !important;
         }
-        
-        [data-theme="dark"] .config-btn:not(.primary):not(.danger):hover { 
-            background: var(--hover-color) !important; 
-            border-color: var(--primary-color) !important; 
+
+        [data-theme="dark"] .config-btn:not(.primary):not(.danger):hover {
+            background: var(--hover-color) !important;
+            border-color: var(--primary-color) !important;
         }
-        
-        [data-theme="dark"] .feature-btn { 
-            background: linear-gradient(135deg, #3d1f1f 0%, var(--card-bg) 100%) !important; 
-            border-color: #5c3838 !important; 
-            color: #ff6b6b !important; 
+
+        [data-theme="dark"] .feature-btn {
+            background: linear-gradient(135deg, #3d1f1f 0%, var(--card-bg) 100%) !important;
+            border-color: #5c3838 !important;
+            color: #ff6b6b !important;
         }
-        
-        [data-theme="dark"] .feature-btn:hover { 
-            background: #4a2626 !important; 
-            border-color: #6b4545 !important; 
+
+        [data-theme="dark"] .feature-btn:hover {
+            background: #4a2626 !important;
+            border-color: #6b4545 !important;
         }
-        
-        [data-theme="dark"] .tool-nav-btn { 
-            background: linear-gradient(135deg, #1a2a3a 0%, var(--card-bg) 100%) !important; 
-            border-color: var(--border-color) !important; 
-            color: var(--primary-color) !important; 
+
+        [data-theme="dark"] .tool-nav-btn {
+            background: linear-gradient(135deg, #1a2a3a 0%, var(--card-bg) 100%) !important;
+            border-color: var(--border-color) !important;
+            color: var(--primary-color) !important;
         }
-        
-        [data-theme="dark"] .tool-nav-btn:hover { 
-            background: var(--hover-color) !important; 
+
+        [data-theme="dark"] .tool-nav-btn:hover {
+            background: var(--hover-color) !important;
         }
-        
-        [data-theme="dark"] .xhs-nav-btn { 
-            background: linear-gradient(135deg, #3a1a1f 0%, var(--card-bg) 100%) !important; 
-            border-color: #5c3838 !important; 
-            color: #ff6b8b !important; 
+
+        [data-theme="dark"] .xhs-nav-btn {
+            background: linear-gradient(135deg, #3a1a1f 0%, var(--card-bg) 100%) !important;
+            border-color: #5c3838 !important;
+            color: #ff6b8b !important;
         }
-        
-        [data-theme="dark"] .xhs-nav-btn:hover { 
-            background: #4a2626 !important; 
+
+        [data-theme="dark"] .xhs-nav-btn:hover {
+            background: #4a2626 !important;
         }
-        
-        [data-theme="dark"] .banana-nav-btn { 
-            background: linear-gradient(135deg, #3a2f1a 0%, var(--card-bg) 100%) !important; 
-            border-color: #5c4a2a !important; 
-            color: #f59e0b !important; 
+
+        [data-theme="dark"] .banana-nav-btn {
+            background: linear-gradient(135deg, #3a2f1a 0%, var(--card-bg) 100%) !important;
+            border-color: #5c4a2a !important;
+            color: #f59e0b !important;
         }
-        
-        [data-theme="dark"] .banana-nav-btn:hover { 
-            background: #4a3a26 !important; 
+
+        [data-theme="dark"] .banana-nav-btn:hover {
+            background: #4a3a26 !important;
         }
-        
+
         [data-theme="dark"] code,
-        [data-theme="dark"] pre { 
-            background: var(--input-bg) !important; 
-            border-color: var(--border-color) !important; 
-            color: var(--text-main) !important; 
+        [data-theme="dark"] pre {
+            background: var(--input-bg) !important;
+            border-color: var(--border-color) !important;
+            color: var(--text-main) !important;
         }
-        
-        [data-theme="dark"] .toast { 
-            background: var(--card-bg) !important; 
-            color: var(--text-main) !important; 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.5) !important; 
+
+        [data-theme="dark"] .toast {
+            background: var(--card-bg) !important;
+            color: var(--text-main) !important;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5) !important;
         }
-        
-        [data-theme="dark"] .toast.success { 
-            background: #1e4620 !important; 
-            border-left-color: #4caf50 !important; 
+
+        [data-theme="dark"] .toast.success {
+            background: #1e4620 !important;
+            border-left-color: #4caf50 !important;
         }
-        
-        [data-theme="dark"] .toast.error { 
-            background: #4a1f1f !important; 
-            border-left-color: #f44336 !important; 
+
+        [data-theme="dark"] .toast.error {
+            background: #4a1f1f !important;
+            border-left-color: #f44336 !important;
         }
-        
-        [data-theme="dark"] .toast.warning { 
-            background: #4a3a1f !important; 
-            border-left-color: #ff9800 !important; 
+
+        [data-theme="dark"] .toast.warning {
+            background: #4a3a1f !important;
+            border-left-color: #ff9800 !important;
         }
-        
+
         [data-theme="dark"] .generated-image,
-        [data-theme="dark"] .shot-img { 
-            opacity: 0.95; 
+        [data-theme="dark"] .shot-img {
+            opacity: 0.95;
         }
-        
+
         /* 预览图保持正常显示 */
-        [data-theme="dark"] .preview-item { 
+        [data-theme="dark"] .preview-item {
             background-color: #2d2d2d !important;
             border-color: var(--border-color) !important;
             opacity: 1 !important;
         }
-        
-        [data-theme="dark"] .preview-close { 
+
+        [data-theme="dark"] .preview-close {
             background: var(--text-sub) !important;
             border-color: var(--border-color) !important;
         }
-        
-        [data-theme="dark"] .action-btn { 
-            color: var(--text-sub) !important; 
+
+        [data-theme="dark"] .action-btn {
+            color: var(--text-sub) !important;
         }
-        
-        [data-theme="dark"] .action-btn:hover { 
-            color: var(--primary-color) !important; 
+
+        [data-theme="dark"] .action-btn:hover {
+            color: var(--primary-color) !important;
         }
-        
+
         [data-theme="dark"] .res-btn,
-        [data-theme="dark"] .ratio-card { 
-            background: var(--card-bg) !important; 
-            border-color: var(--border-color) !important; 
-            color: var(--text-main) !important; 
+        [data-theme="dark"] .ratio-card {
+            background: var(--card-bg) !important;
+            border-color: var(--border-color) !important;
+            color: var(--text-main) !important;
         }
-        
+
         [data-theme="dark"] .res-btn.active,
-        [data-theme="dark"] .ratio-card.active { 
-            background: var(--primary-color) !important; 
-            color: var(--bg-color) !important; 
-            border-color: var(--primary-color) !important; 
+        [data-theme="dark"] .ratio-card.active {
+            background: var(--primary-color) !important;
+            color: var(--bg-color) !important;
+            border-color: var(--primary-color) !important;
         }
         [data-theme="dark"] .ratio-card.active .ratio-text {
             color: var(--bg-color) !important;
@@ -337,388 +337,388 @@
         [data-theme="dark"] .ratio-card.active .icon-box {
             border-color: var(--bg-color) !important;
         }
-        
-        [data-theme="dark"] .mobile-header { 
-            background: var(--bg-secondary) !important; 
-            border-color: var(--border-color) !important; 
-            color: var(--text-main) !important; 
+
+        [data-theme="dark"] .mobile-header {
+            background: var(--bg-secondary) !important;
+            border-color: var(--border-color) !important;
+            color: var(--text-main) !important;
         }
-        
+
         /* 小红书实验室暗黑模式 */
-        [data-theme="dark"] .xhs-config-card { 
-            background: var(--card-bg) !important; 
-            border-color: var(--border-color) !important; 
+        [data-theme="dark"] .xhs-config-card {
+            background: var(--card-bg) !important;
+            border-color: var(--border-color) !important;
         }
-        
-        [data-theme="dark"] .xhs-section-label { 
-            color: var(--text-sub) !important; 
+
+        [data-theme="dark"] .xhs-section-label {
+            color: var(--text-sub) !important;
         }
-        
+
         [data-theme="dark"] .xhs-text-result,
-        [data-theme="dark"] .xhs-content-viewer { 
-            background: var(--card-bg) !important; 
-            color: var(--text-main) !important; 
-            border-color: var(--border-color) !important; 
+        [data-theme="dark"] .xhs-content-viewer {
+            background: var(--card-bg) !important;
+            color: var(--text-main) !important;
+            border-color: var(--border-color) !important;
         }
-        
-        [data-theme="dark"] .xhs-shot-list { 
-            background: var(--bg-color) !important; 
+
+        [data-theme="dark"] .xhs-shot-list {
+            background: var(--bg-color) !important;
         }
-        
-        [data-theme="dark"] .shot-img-wrap { 
-            background: var(--card-bg) !important; 
-            border-color: var(--border-color) !important; 
+
+        [data-theme="dark"] .shot-img-wrap {
+            background: var(--card-bg) !important;
+            border-color: var(--border-color) !important;
         }
-        
-        [data-theme="dark"] .shot-body { 
-            background: var(--card-bg) !important; 
+
+        [data-theme="dark"] .shot-body {
+            background: var(--card-bg) !important;
         }
-        
-        [data-theme="dark"] .shot-title { 
-            color: var(--text-main) !important; 
+
+        [data-theme="dark"] .shot-title {
+            color: var(--text-main) !important;
         }
-        
-        [data-theme="dark"] .shot-prompt { 
-            background: var(--input-bg) !important; 
-            border-color: var(--border-color) !important; 
-            color: var(--text-main) !important; 
+
+        [data-theme="dark"] .shot-prompt {
+            background: var(--input-bg) !important;
+            border-color: var(--border-color) !important;
+            color: var(--text-main) !important;
         }
-        
-        [data-theme="dark"] .shot-footer { 
-            background: var(--bg-secondary) !important; 
-            border-color: var(--border-color) !important; 
+
+        [data-theme="dark"] .shot-footer {
+            background: var(--bg-secondary) !important;
+            border-color: var(--border-color) !important;
         }
-        
-        [data-theme="dark"] .ref-capsule { 
-            background: var(--input-bg) !important; 
-            border-color: var(--border-color) !important; 
+
+        [data-theme="dark"] .ref-capsule {
+            background: var(--input-bg) !important;
+            border-color: var(--border-color) !important;
         }
-        
-        [data-theme="dark"] .add-ref-btn { 
-            background: var(--input-bg) !important; 
-            border-color: var(--border-color) !important; 
-            color: var(--text-sub) !important; 
+
+        [data-theme="dark"] .add-ref-btn {
+            background: var(--input-bg) !important;
+            border-color: var(--border-color) !important;
+            color: var(--text-sub) !important;
         }
-        
-        [data-theme="dark"] .add-ref-btn:hover { 
-            background: var(--hover-color) !important; 
-            color: var(--text-main) !important; 
+
+        [data-theme="dark"] .add-ref-btn:hover {
+            background: var(--hover-color) !important;
+            color: var(--text-main) !important;
         }
-        
-        [data-theme="dark"] .xhs-mini-btn { 
-            background: var(--primary-color) !important; 
-            color: var(--bg-color) !important; 
+
+        [data-theme="dark"] .xhs-mini-btn {
+            background: var(--primary-color) !important;
+            color: var(--bg-color) !important;
         }
-        
-        [data-theme="dark"] .history-item { 
-            background: var(--card-bg) !important; 
-            border-color: var(--border-color) !important; 
-            color: var(--text-main) !important; 
+
+        [data-theme="dark"] .history-item {
+            background: var(--card-bg) !important;
+            border-color: var(--border-color) !important;
+            color: var(--text-main) !important;
         }
-        
-        [data-theme="dark"] .history-item:hover { 
-            background: var(--hover-color) !important; 
+
+        [data-theme="dark"] .history-item:hover {
+            background: var(--hover-color) !important;
         }
-        
+
         /* 香蕉提示词快查暗黑模式 */
-        [data-theme="dark"] .banana-prompt-card { 
-            border-color: var(--border-color) !important; 
-            color: var(--text-main) !important; 
+        [data-theme="dark"] .banana-prompt-card {
+            border-color: var(--border-color) !important;
+            color: var(--text-main) !important;
         }
-        
-        [data-theme="dark"] .banana-prompt-card:hover { 
-            border-color: var(--primary-color) !important; 
+
+        [data-theme="dark"] .banana-prompt-card:hover {
+            border-color: var(--primary-color) !important;
         }
-        
-        [data-theme="dark"] .banana-category { 
-            color: var(--text-sub) !important; 
+
+        [data-theme="dark"] .banana-category {
+            color: var(--text-sub) !important;
         }
-        
-        [data-theme="dark"] .banana-title { 
-            color: var(--text-main) !important; 
+
+        [data-theme="dark"] .banana-title {
+            color: var(--text-main) !important;
         }
-        
-        [data-theme="dark"] .banana-desc { 
-            color: var(--text-sub) !important; 
+
+        [data-theme="dark"] .banana-desc {
+            color: var(--text-sub) !important;
         }
-        
-        [data-theme="dark"] .banana-search { 
-            background: var(--input-bg) !important; 
-            border-color: var(--border-color) !important; 
-            color: var(--text-main) !important; 
+
+        [data-theme="dark"] .banana-search {
+            background: var(--input-bg) !important;
+            border-color: var(--border-color) !important;
+            color: var(--text-main) !important;
         }
-        
-        [data-theme="dark"] .banana-filter-btn { 
-            background: var(--card-bg) !important; 
-            border-color: var(--border-color) !important; 
-            color: var(--text-main) !important; 
+
+        [data-theme="dark"] .banana-filter-btn {
+            background: var(--card-bg) !important;
+            border-color: var(--border-color) !important;
+            color: var(--text-main) !important;
         }
-        
-        [data-theme="dark"] .banana-filter-btn.active { 
-            background: var(--primary-color) !important; 
-            color: var(--bg-color) !important; 
-            border-color: var(--primary-color) !important; 
+
+        [data-theme="dark"] .banana-filter-btn.active {
+            background: var(--primary-color) !important;
+            color: var(--bg-color) !important;
+            border-color: var(--primary-color) !important;
         }
-        
+
         /* 香蕉提示词框 */
-        [data-theme="dark"] .banana-prompt-box { 
-            background: var(--input-bg) !important; 
-            border-color: var(--border-color) !important; 
-            color: var(--text-main) !important; 
+        [data-theme="dark"] .banana-prompt-box {
+            background: var(--input-bg) !important;
+            border-color: var(--border-color) !important;
+            color: var(--text-main) !important;
         }
-        
-        [data-theme="dark"] .banana-prompt-box:hover { 
-            background: var(--hover-color) !important; 
-            border-color: var(--primary-color) !important; 
+
+        [data-theme="dark"] .banana-prompt-box:hover {
+            background: var(--hover-color) !important;
+            border-color: var(--primary-color) !important;
         }
-        
-        [data-theme="dark"] .banana-prompt-text { 
-            color: var(--text-main) !important; 
+
+        [data-theme="dark"] .banana-prompt-text {
+            color: var(--text-main) !important;
         }
-        
-        [data-theme="dark"] .banana-prompt-tip { 
-            color: var(--text-main) !important; 
+
+        [data-theme="dark"] .banana-prompt-tip {
+            color: var(--text-main) !important;
         }
-        
-        [data-theme="dark"] .banana-prompt-tip span { 
-            background: var(--primary-color) !important; 
-            color: var(--bg-color) !important; 
+
+        [data-theme="dark"] .banana-prompt-tip span {
+            background: var(--primary-color) !important;
+            color: var(--bg-color) !important;
         }
-        
-        [data-theme="dark"] .banana-preview-box { 
-            background: var(--input-bg) !important; 
-            border-color: var(--border-color) !important; 
+
+        [data-theme="dark"] .banana-preview-box {
+            background: var(--input-bg) !important;
+            border-color: var(--border-color) !important;
         }
-        
-        [data-theme="dark"] .banana-content { 
-            background: var(--card-bg) !important; 
-            color: var(--text-main) !important; 
+
+        [data-theme="dark"] .banana-content {
+            background: var(--card-bg) !important;
+            color: var(--text-main) !important;
         }
-        
-        [data-theme="dark"] .banana-footer { 
-            background: var(--bg-secondary) !important; 
-            border-color: var(--border-color) !important; 
+
+        [data-theme="dark"] .banana-footer {
+            background: var(--bg-secondary) !important;
+            border-color: var(--border-color) !important;
         }
-        
-        [data-theme="dark"] .banana-author { 
-            color: var(--text-sub) !important; 
+
+        [data-theme="dark"] .banana-author {
+            color: var(--text-sub) !important;
         }
-        
-        [data-theme="dark"] .banana-icon-btn { 
-            color: var(--text-sub) !important; 
+
+        [data-theme="dark"] .banana-icon-btn {
+            color: var(--text-sub) !important;
         }
-        
-        [data-theme="dark"] .banana-icon-btn:hover { 
-            background: var(--hover-color) !important; 
-            color: var(--primary-color) !important; 
+
+        [data-theme="dark"] .banana-icon-btn:hover {
+            background: var(--hover-color) !important;
+            color: var(--primary-color) !important;
         }
-        
-        [data-theme="dark"] .banana-tag { 
-            background: var(--input-bg) !important; 
-            color: var(--text-main) !important; 
-            border-color: var(--border-color) !important; 
+
+        [data-theme="dark"] .banana-tag {
+            background: var(--input-bg) !important;
+            color: var(--text-main) !important;
+            border-color: var(--border-color) !important;
         }
-        
+
         /* 主页顶部品牌区域 */
-        [data-theme="dark"] .brand-area { 
-            color: var(--text-main) !important; 
+        [data-theme="dark"] .brand-area {
+            color: var(--text-main) !important;
         }
-        
+
         /* 流式传输开关区域 */
-        [data-theme="dark"] label[style*="display: flex"] { 
-            color: var(--text-main) !important; 
+        [data-theme="dark"] label[style*="display: flex"] {
+            color: var(--text-main) !important;
         }
-        
-        [data-theme="dark"] div[style*="background: #f8f9fa"] { 
-            background: var(--card-bg) !important; 
+
+        [data-theme="dark"] div[style*="background: #f8f9fa"] {
+            background: var(--card-bg) !important;
         }
-        
+
         /* 主页桌面端顶部 */
-        [data-theme="dark"] .desktop-header { 
-            background: rgba(26, 26, 26, 0.8) !important; 
+        [data-theme="dark"] .desktop-header {
+            background: rgba(26, 26, 26, 0.8) !important;
             backdrop-filter: blur(10px);
-            border-color: var(--border-color) !important; 
+            border-color: var(--border-color) !important;
         }
-        
-        [data-theme="dark"] .header-actions { 
-            color: var(--text-main) !important; 
+
+        [data-theme="dark"] .header-actions {
+            color: var(--text-main) !important;
         }
-        
+
         /* 小红书实验室顶部 */
-        [data-theme="dark"] .xhs-header { 
-            background: var(--bg-secondary) !important; 
-            border-color: var(--border-color) !important; 
+        [data-theme="dark"] .xhs-header {
+            background: var(--bg-secondary) !important;
+            border-color: var(--border-color) !important;
         }
-        
-        [data-theme="dark"] .xhs-toggle-btn { 
-            background: var(--card-bg) !important; 
-            color: var(--text-main) !important; 
-            border-color: var(--border-color) !important; 
+
+        [data-theme="dark"] .xhs-toggle-btn {
+            background: var(--card-bg) !important;
+            color: var(--text-main) !important;
+            border-color: var(--border-color) !important;
         }
-        
-        [data-theme="dark"] .xhs-toggle-btn:hover { 
-            background: var(--hover-color) !important; 
+
+        [data-theme="dark"] .xhs-toggle-btn:hover {
+            background: var(--hover-color) !important;
         }
-        
+
         /* 小红书输入框区域 */
-        [data-theme="dark"] .xhs-input-box { 
+        [data-theme="dark"] .xhs-input-box {
             background: transparent !important;
-            border-color: var(--border-color) !important; 
+            border-color: var(--border-color) !important;
         }
-        
-        [data-theme="dark"] .xhs-textarea { 
-            background: var(--input-bg) !important; 
-            border-color: var(--border-color) !important; 
-            color: var(--text-main) !important; 
+
+        [data-theme="dark"] .xhs-textarea {
+            background: var(--input-bg) !important;
+            border-color: var(--border-color) !important;
+            color: var(--text-main) !important;
         }
-        
-        [data-theme="dark"] .xhs-textarea::placeholder { 
-            color: var(--text-sub) !important; 
+
+        [data-theme="dark"] .xhs-textarea::placeholder {
+            color: var(--text-sub) !important;
         }
-        
+
         /* 小红书文案结果区域 */
-        [data-theme="dark"] .xhs-text-result { 
-            background: var(--card-bg) !important; 
-            border-color: var(--border-color) !important; 
+        [data-theme="dark"] .xhs-text-result {
+            background: var(--card-bg) !important;
+            border-color: var(--border-color) !important;
         }
-        
-        [data-theme="dark"] .xhs-content-viewer { 
-            background: var(--card-bg) !important; 
-            color: var(--text-main) !important; 
+
+        [data-theme="dark"] .xhs-content-viewer {
+            background: var(--card-bg) !important;
+            color: var(--text-main) !important;
         }
-        
+
         [data-theme="dark"] .xhs-content-viewer h1,
         [data-theme="dark"] .xhs-content-viewer h2,
         [data-theme="dark"] .xhs-content-viewer h3,
         [data-theme="dark"] .xhs-content-viewer h4,
         [data-theme="dark"] .xhs-content-viewer h5,
-        [data-theme="dark"] .xhs-content-viewer h6 { 
-            color: var(--text-main) !important; 
+        [data-theme="dark"] .xhs-content-viewer h6 {
+            color: var(--text-main) !important;
         }
-        
-        [data-theme="dark"] .xhs-content-viewer p { 
-            color: var(--text-main) !important; 
+
+        [data-theme="dark"] .xhs-content-viewer p {
+            color: var(--text-main) !important;
         }
-        
+
         /* 小红书分镜卡片 */
-        [data-theme="dark"] .shot-card { 
-            background: var(--card-bg) !important; 
-            border-color: var(--border-color) !important; 
+        [data-theme="dark"] .shot-card {
+            background: var(--card-bg) !important;
+            border-color: var(--border-color) !important;
         }
-        
-        [data-theme="dark"] .shot-loading { 
-            background: rgba(26, 26, 26, 0.9) !important; 
+
+        [data-theme="dark"] .shot-loading {
+            background: rgba(26, 26, 26, 0.9) !important;
         }
-        
+
         /* 小红书预览区域 */
-        [data-theme="dark"] .xhs-previews { 
-            background: var(--input-bg) !important; 
-            border-color: var(--border-color) !important; 
+        [data-theme="dark"] .xhs-previews {
+            background: var(--input-bg) !important;
+            border-color: var(--border-color) !important;
         }
-        
-        [data-theme="dark"] .xhs-preview-item { 
-            background: var(--card-bg) !important; 
-            border-color: var(--border-color) !important; 
+
+        [data-theme="dark"] .xhs-preview-item {
+            background: var(--card-bg) !important;
+            border-color: var(--border-color) !important;
         }
-        
+
         /* 小红书右侧面板 */
-        [data-theme="dark"] .xhs-right { 
-            background: var(--bg-secondary) !important; 
-            border-color: var(--border-color) !important; 
+        [data-theme="dark"] .xhs-right {
+            background: var(--bg-secondary) !important;
+            border-color: var(--border-color) !important;
         }
-        
-        [data-theme="dark"] .xhs-paint-config { 
-            background: var(--card-bg) !important; 
-            border-color: var(--border-color) !important; 
+
+        [data-theme="dark"] .xhs-paint-config {
+            background: var(--card-bg) !important;
+            border-color: var(--border-color) !important;
         }
-        
+
         /* 香蕉工具区域 */
-        [data-theme="dark"] .banana-header { 
-            background: var(--bg-secondary) !important; 
-            border-color: var(--border-color) !important; 
+        [data-theme="dark"] .banana-header {
+            background: var(--bg-secondary) !important;
+            border-color: var(--border-color) !important;
         }
-        
-        [data-theme="dark"] .banana-sidebar { 
-            background: var(--bg-secondary) !important; 
-            border-color: var(--border-color) !important; 
+
+        [data-theme="dark"] .banana-sidebar {
+            background: var(--bg-secondary) !important;
+            border-color: var(--border-color) !important;
         }
-        
-        [data-theme="dark"] .banana-main { 
-            background: var(--bg-color) !important; 
+
+        [data-theme="dark"] .banana-main {
+            background: var(--bg-color) !important;
         }
-        
+
         /* 切片工具 */
-        [data-theme="dark"] .slice-header-bar { 
-            background: var(--bg-secondary) !important; 
-            border-color: var(--border-color) !important; 
-            color: var(--text-main) !important; 
+        [data-theme="dark"] .slice-header-bar {
+            background: var(--bg-secondary) !important;
+            border-color: var(--border-color) !important;
+            color: var(--text-main) !important;
         }
-        
-        [data-theme="dark"] .slicer-modal-content { 
-            background: var(--card-bg) !important; 
-            color: var(--text-main) !important; 
+
+        [data-theme="dark"] .slicer-modal-content {
+            background: var(--card-bg) !important;
+            color: var(--text-main) !important;
         }
-        
-        [data-theme="dark"] .slicer-canvas-area { 
-            background: var(--input-bg) !important; 
-            border-color: var(--border-color) !important; 
+
+        [data-theme="dark"] .slicer-canvas-area {
+            background: var(--input-bg) !important;
+            border-color: var(--border-color) !important;
         }
-        
-        [data-theme="dark"] .slicer-controls { 
-            background: var(--card-bg) !important; 
-            border-color: var(--border-color) !important; 
+
+        [data-theme="dark"] .slicer-controls {
+            background: var(--card-bg) !important;
+            border-color: var(--border-color) !important;
         }
-        
-        [data-theme="dark"] .slicer-preview-grid { 
-            background: var(--input-bg) !important; 
+
+        [data-theme="dark"] .slicer-preview-grid {
+            background: var(--input-bg) !important;
         }
-        
-        [data-theme="dark"] .slicer-preview-item { 
-            background: var(--card-bg) !important; 
-            border-color: var(--border-color) !important; 
+
+        [data-theme="dark"] .slicer-preview-item {
+            background: var(--card-bg) !important;
+            border-color: var(--border-color) !important;
         }
-        
-        [data-theme="dark"] .slice-title { 
-            color: var(--text-main) !important; 
+
+        [data-theme="dark"] .slice-title {
+            color: var(--text-main) !important;
         }
-        
-        [data-theme="dark"] .slice-close-btn { 
-            color: var(--text-main) !important; 
-            background: var(--card-bg) !important; 
+
+        [data-theme="dark"] .slice-close-btn {
+            color: var(--text-main) !important;
+            background: var(--card-bg) !important;
         }
-        
-        [data-theme="dark"] .slice-close-btn:hover { 
-            background: var(--hover-color) !important; 
+
+        [data-theme="dark"] .slice-close-btn:hover {
+            background: var(--hover-color) !important;
         }
-        
+
         /* 通用覆盖 - 所有白色背景（排除预览图） */
         [data-theme="dark"] [style*="background:#fff"]:not(.preview-item),
         [data-theme="dark"] [style*="background: #fff"]:not(.preview-item),
         [data-theme="dark"] [style*="background:white"]:not(.preview-item),
         [data-theme="dark"] [style*="background: white"]:not(.preview-item),
         [data-theme="dark"] [style*="background:#ffffff"]:not(.preview-item),
-        [data-theme="dark"] [style*="background: #ffffff"]:not(.preview-item) { 
-            background: var(--card-bg) !important; 
+        [data-theme="dark"] [style*="background: #ffffff"]:not(.preview-item) {
+            background: var(--card-bg) !important;
         }
-        
+
         /* 通用覆盖 - 所有浅灰背景 */
         [data-theme="dark"] [style*="background:#f8f9fa"],
         [data-theme="dark"] [style*="background: #f8f9fa"],
         [data-theme="dark"] [style*="background:#f1f3f4"],
-        [data-theme="dark"] [style*="background: #f1f3f4"] { 
-            background: var(--input-bg) !important; 
+        [data-theme="dark"] [style*="background: #f1f3f4"] {
+            background: var(--input-bg) !important;
         }
-        
+
         /* 通用覆盖 - 所有深色文字 */
         [data-theme="dark"] [style*="color:#202124"],
         [data-theme="dark"] [style*="color: #202124"],
         [data-theme="dark"] [style*="color:#444"],
         [data-theme="dark"] [style*="color: #444"],
         [data-theme="dark"] [style*="color:#1f1f1f"],
-        [data-theme="dark"] [style*="color: #1f1f1f"] { 
-            color: var(--text-main) !important; 
+        [data-theme="dark"] [style*="color: #1f1f1f"] {
+            color: var(--text-main) !important;
         }
-        
+
         /* 通用覆盖 - 所有次要文字 */
         [data-theme="dark"] [style*="color:#5f6368"],
         [data-theme="dark"] [style*="color: #5f6368"],
@@ -727,67 +727,67 @@
         [data-theme="dark"] [style*="color:#666"],
         [data-theme="dark"] [style*="color: #666"],
         [data-theme="dark"] [style*="color:#999"],
-        [data-theme="dark"] [style*="color: #999"] { 
-            color: var(--text-sub) !important; 
+        [data-theme="dark"] [style*="color: #999"] {
+            color: var(--text-sub) !important;
         }
-        
+
         /* 通用覆盖 - 所有深色文字 (#333) */
         [data-theme="dark"] [style*="color:#333"],
-        [data-theme="dark"] [style*="color: #333"] { 
-            color: var(--text-main) !important; 
+        [data-theme="dark"] [style*="color: #333"] {
+            color: var(--text-main) !important;
         }
-        
+
         /* 小红书画廊栏 */
-        [data-theme="dark"] .xhs-gallery-bar { 
-            background: var(--bg-secondary) !important; 
-            border-color: var(--border-color) !important; 
+        [data-theme="dark"] .xhs-gallery-bar {
+            background: var(--bg-secondary) !important;
+            border-color: var(--border-color) !important;
         }
-        
+
         /* 小红书文案结果区域 - 使用ID选择器 */
-        [data-theme="dark"] #xhs-text-result { 
-            background: var(--card-bg) !important; 
-            border-color: var(--border-color) !important; 
-            color: var(--text-main) !important; 
+        [data-theme="dark"] #xhs-text-result {
+            background: var(--card-bg) !important;
+            border-color: var(--border-color) !important;
+            color: var(--text-main) !important;
         }
-        
+
         /* 小红书内容查看器 - 强制所有子元素文字为白色 */
         [data-theme="dark"] #xhs-content-viewer,
-        [data-theme="dark"] #xhs-content-viewer * { 
-            color: var(--text-main) !important; 
+        [data-theme="dark"] #xhs-content-viewer * {
+            color: var(--text-main) !important;
         }
-        
+
         /* 小红书历史记录项 */
-        [data-theme="dark"] .xhs-history-item { 
-            background: var(--card-bg) !important; 
-            border-color: var(--border-color) !important; 
-            color: var(--text-main) !important; 
+        [data-theme="dark"] .xhs-history-item {
+            background: var(--card-bg) !important;
+            border-color: var(--border-color) !important;
+            color: var(--text-main) !important;
         }
-        
-        [data-theme="dark"] .xhs-history-item:hover { 
-            background: var(--hover-color) !important; 
-            border-color: var(--primary-color) !important; 
+
+        [data-theme="dark"] .xhs-history-item:hover {
+            background: var(--hover-color) !important;
+            border-color: var(--primary-color) !important;
         }
-        
+
         [data-theme="dark"] .xhs-h-title,
-        [data-theme="dark"] .xhs-h-date { 
-            color: var(--text-main) !important; 
+        [data-theme="dark"] .xhs-h-date {
+            color: var(--text-main) !important;
         }
-        
+
         /* 小红书模态框标题 */
-        [data-theme="dark"] .xhs-modal-title { 
-            color: var(--text-main) !important; 
+        [data-theme="dark"] .xhs-modal-title {
+            color: var(--text-main) !important;
         }
-        
+
         /* XHS 灵感实验室标题栏 */
-        [data-theme="dark"] .xhs-title-bar { 
-            color: var(--text-main) !important; 
+        [data-theme="dark"] .xhs-title-bar {
+            color: var(--text-main) !important;
         }
-        
+
         /* 小红书历史记录列表中的空状态文字 */
-        [data-theme="dark"] #xhs-history-list div[style*="color:#999"] { 
-            color: var(--text-sub) !important; 
+        [data-theme="dark"] #xhs-history-list div[style*="color:#999"] {
+            color: var(--text-sub) !important;
         }
-        
+
         /* 香蕉提示词模态框 */
         [data-theme="dark"] #banana-modal {
             background: var(--bg-color) !important;
@@ -974,22 +974,22 @@
             background: #3a2f4a !important;
             border-color: #6d5d7c !important;
         }
-        
+
         /* 小红书图片数量输入框 */
-        [data-theme="dark"] #xhs-img-count { 
-            background: var(--input-bg) !important; 
-            border-color: var(--border-color) !important; 
-            color: var(--text-main) !important; 
+        [data-theme="dark"] #xhs-img-count {
+            background: var(--input-bg) !important;
+            border-color: var(--border-color) !important;
+            color: var(--text-main) !important;
         }
-        
+
         /* 通用覆盖 - 所有带边框的输入框 */
         [data-theme="dark"] input[type="number"][style*="border:1px solid #ddd"],
-        [data-theme="dark"] input[type="number"][style*="border: 1px solid #ddd"] { 
-            background: var(--input-bg) !important; 
-            border-color: var(--border-color) !important; 
-            color: var(--text-main) !important; 
+        [data-theme="dark"] input[type="number"][style*="border: 1px solid #ddd"] {
+            background: var(--input-bg) !important;
+            border-color: var(--border-color) !important;
+            color: var(--text-main) !important;
         }
-        
+
         /* 设置标题栏工具 */
         .theme-toggle-btn, .settings-close-btn {
             width: 32px;
@@ -1019,7 +1019,7 @@
         .theme-icon-moon { display: inline-block; }
         [data-theme="dark"] .theme-icon-sun { display: inline-block; }
         [data-theme="dark"] .theme-icon-moon { display: none; }
-        
+
         @supports (height: 100dvh) { :root { --app-height: 100dvh; } }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -1040,7 +1040,7 @@
             display: flex; flex-direction: column; flex-shrink: 0; height: 100%;
             transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 60; padding-top: 10px;
         }
-        
+
         .new-chat-btn {
             margin: 5px 12px; padding: 12px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px;
             color: var(--text-main); font-weight: 500; cursor: pointer; font-size: 14px;
@@ -1060,7 +1060,7 @@
 
         .xhs-nav-btn { background: linear-gradient(135deg, #fff0f2 0%, #fff 100%); border-color: #ffdce0; color: var(--xhs-color); }
         .xhs-nav-btn:hover { background: #ffeef0; border-color: var(--xhs-color); }
-        
+
         /* 新增：Banana Prompt 按钮样式 */
         .banana-nav-btn { background: linear-gradient(135deg, #fffbeb 0%, #fff 100%); border-color: #fcd34d; color: #b45309; }
         .banana-nav-btn svg { color: #d97706; }
@@ -1108,8 +1108,8 @@
         .brand-area { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 18px; color: #202124; }
         .header-actions { display: flex; gap: 10px; }
         .header-icon-btn {
-            width: 36px; height: 36px; border-radius: 4px; display: flex; align-items: center; justify-content: center;
-            cursor: pointer; color: #5f6368; transition: background 0.2s;
+            width: 36px; height: 36px; border: 0; border-radius: 4px; display: flex; align-items: center; justify-content: center;
+            padding: 0; background: transparent; font: inherit; cursor: pointer; color: #5f6368; transition: background 0.2s;
         }
         .header-icon-btn:hover { background: #f1f3f4; color: #202124; }
         .mobile-header {
@@ -1151,7 +1151,7 @@
         }
         .input-wrapper {
             width: 100%; background: var(--bg-color); border-radius: 8px;
-            display: flex; align-items: flex-end; padding: 10px 12px; 
+            display: flex; align-items: flex-end; padding: 10px 12px;
             transition: border-color 0.15s; border: 1px solid var(--border-color); min-height: 52px;
             pointer-events: auto;
         }
@@ -1159,9 +1159,9 @@
         .input-wrapper textarea:focus,
         .input-wrapper textarea:focus-visible { outline: none; }
         [data-theme="dark"] .input-wrapper:focus-within { border-color: var(--primary-color) !important; }
-        .input-wrapper.drag-over { 
-            background: var(--hover-color) !important; 
-            border-color: var(--primary-color) !important; 
+        .input-wrapper.drag-over {
+            background: var(--hover-color) !important;
+            border-color: var(--primary-color) !important;
         }
         textarea {
             flex: 1; border: none; background: transparent; padding: 0 8px; margin-bottom: 2px;
@@ -1194,6 +1194,9 @@
         .settings-sidebar {
             width: 296px; max-width: 100%; background-color: var(--bg-color); border-left: 1px solid var(--border-color); display: block; height: 100%; overflow-y: auto; flex-shrink: 0;
             position: relative; z-index: 40; transition: transform 0.3s ease;
+        }
+        @media (min-width: 769px) {
+            .settings-sidebar.is-collapsed { width: 0; min-width: 0; border-left-width: 0; overflow: hidden; }
         }
         .settings-inner { padding: 0 18px 16px; display: flex; flex-direction: column; min-height: 100%; color: var(--text-main); }
         .settings-header { display: flex; align-items: center; gap: 4px; min-height: var(--header-height); margin-bottom: 12px; flex-shrink: 0; }
@@ -1301,7 +1304,7 @@
         .ratio-card.active .icon-box { border-color: #1a73e8; }
         .ratio-text { font-size: 11px; color: var(--text-sub); }
         .ratio-card.active .ratio-text { color: #1a73e8; font-weight: 600; }
-        
+
         .icon-auto { width: 14px; height: 14px; border-style: dashed; }
         .icon-1-1 { width: 14px; height: 14px; }
         .icon-21-9 { width: 20px; height: 8px; }
@@ -1323,9 +1326,9 @@
         details.thought-box[open] summary::before { transform: rotate(90deg); }
         .thought-content { padding: 12px 16px; font-size: 13px; line-height: 1.6; color: #444; border-top: 1px solid #eee; font-family: monospace; white-space: pre-wrap; background-color: #fff; }
         .btn-group { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap;}
-        .tool-btn { 
-            display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; 
-            background: #fff; color: #5f6368; border: 1px solid #dadce0; 
+        .tool-btn {
+            display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px;
+            background: #fff; color: #5f6368; border: 1px solid #dadce0;
             border-radius: 16px; font-size: 12px; text-decoration: none; cursor: pointer; transition: all 0.2s; font-weight: 500;
         }
         .tool-btn:hover { background: #f8f9fa; color: #1a73e8; border-color: #d2e3fc; }
@@ -1338,7 +1341,7 @@
         .lightbox-overlay.active { display: flex; animation: fadeIn 0.2s; }
         .lightbox-img { max-width: 95vw; max-height: 95vh; object-fit: contain; border-radius: 4px; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
         .lightbox-close { position: absolute; top: 24px; right: 24px; color: white; font-size: 32px; cursor: pointer; opacity: 0.7; transition: opacity 0.2s; }
-        
+
         .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 30; display: none; backdrop-filter: blur(2px); }
         .overlay.active { display: block; }
         .loading-spinner { width: 20px; height: 20px; border: 2px solid #e0e0e0; border-top-color: var(--primary-color); border-radius: 50%; animation: spin 0.8s linear infinite; }
@@ -1395,55 +1398,55 @@
         .xhs-textarea-lg { width: 100%; border: none; font-size: 15px; min-height: 100px; resize: none; outline: none; line-height: 1.5; color: #202124; }
 
         /* 上传图片预览区域 */
-        .xhs-upload-row { 
-            display: flex; 
-            gap: 10px; 
-            margin-top: 15px; 
-            align-items: flex-start; 
+        .xhs-upload-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            align-items: flex-start;
             flex-wrap: wrap;
             overflow-x: auto;
             overflow-y: visible;
             padding-bottom: 10px;
         }
-        .xhs-upload-btn { 
-            width: 80px; 
-            height: 80px; 
-            border: 1px dashed #ccc; 
-            border-radius: 8px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            cursor: pointer; 
-            color: #888; 
-            flex-shrink: 0; 
-            transition: all 0.2s; 
+        .xhs-upload-btn {
+            width: 80px;
+            height: 80px;
+            border: 1px dashed #ccc;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #888;
+            flex-shrink: 0;
+            transition: all 0.2s;
         }
         .xhs-upload-btn:hover { border-color: var(--xhs-color); color: var(--xhs-color); background: #fff0f2; }
 
-        .xhs-preview-item { 
-            position: relative; 
-            width: 80px; 
-            height: 80px; 
-            border-radius: 8px; 
-            border: 1px solid #eee; 
-            overflow: visible; 
-            flex-shrink: 0; 
+        .xhs-preview-item {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            border-radius: 8px;
+            border: 1px solid #eee;
+            overflow: visible;
+            flex-shrink: 0;
         }
         .xhs-preview-img { width: 100%; height: 100%; object-fit: cover; }
-        .xhs-preview-del { 
-            position: absolute; 
-            top: -6px; 
-            right: -6px; 
-            width: 20px; 
-            height: 20px; 
-            background: rgba(0,0,0,0.7); 
-            color: white; 
-            border-radius: 50%; 
-            text-align: center; 
-            line-height: 20px; 
-            font-size: 14px; 
-            cursor: pointer; 
-            z-index: 10; 
+        .xhs-preview-del {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            width: 20px;
+            height: 20px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            z-index: 10;
             border: 2px solid white;
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
@@ -1462,18 +1465,18 @@
 .xhs-gallery-opts { display: flex; gap: 10px; align-items: center; }
 .xhs-select { padding: 8px 12px; border-radius: 6px; border: 1px solid #ddd; font-size: 12px; outline: none; cursor: pointer; height: 36px; }
 
-.shot-grid { 
-    padding: 24px; 
-    overflow-y: auto; 
-    display: grid; 
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
+.shot-grid {
+    padding: 24px;
+    overflow-y: auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 16px;
 }
 
-@media (min-width: 1600px) { 
-    .shot-grid { 
+@media (min-width: 1600px) {
+    .shot-grid {
         grid-template-columns: repeat(3, 1fr);
-    } 
+    }
 }
 
 @media (max-width: 1024px) {
@@ -1484,14 +1487,14 @@
 }
 
 /* 分镜卡片 & 垫图胶囊 */
-.shot-card { 
-    background: #fff; 
-    border-radius: 12px; 
-    border: 1px solid #eee; 
-    overflow: visible; 
-    display: flex; 
-    flex-direction: column; 
-    transition: all 0.2s; 
+.shot-card {
+    background: #fff;
+    border-radius: 12px;
+    border: 1px solid #eee;
+    overflow: visible;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.2s;
     position: relative;
 }
 .shot-card:hover { border-color: var(--text-sub); }
@@ -1664,7 +1667,7 @@
             .xhs-middle { border-right: none; flex: none; min-height: auto; min-width: 0; }
             .xhs-middle-content { overflow-y: visible; }
             .xhs-right { flex: none; min-height: 50vh; }
-            .shot-grid { 
+            .shot-grid {
                 grid-template-columns: 1fr;
                 padding: 16px;
             }
@@ -1926,7 +1929,7 @@
             .slice-action-btn { justify-content: center; }
             #slice-result-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
             .delete-btn-line { display: block; transform: scale(0.8); opacity: 0.8; }
-            .xhs-container { padding: 16px; padding-top: 70px; } 
+            .xhs-container { padding: 16px; padding-top: 70px; }
             .xhs-input-card { padding: 20px; }
             .banana-grid { grid-template-columns: 1fr; }
         }

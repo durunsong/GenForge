@@ -158,7 +158,7 @@ API keys are stored locally only; they are not uploaded to this project’s serv
 |---------|-------------|
 | Windows NSIS installer | ✅ |
 | Windows portable | ❌ Use the installer or download from Releases |
-| macOS (dmg + zip) | Requires code signing; update current unsigned builds manually |
+| macOS (dmg + zip) | ✅ Launch from Applications. Unsigned builds are replaced on quit and reopened |
 | Linux AppImage | ✅ |
 | Linux deb | Prefer manual upgrade |
 
@@ -183,7 +183,7 @@ git push origin v1.0.3
 
 3. Monitor **Actions → Release**. CI validates the version and builds Windows EXE / portable / ZIP, macOS universal DMG / ZIP, and Linux AppImage / DEB in parallel.
 4. Only after all platforms succeed, CI verifies packages, updater manifests and hashes, then generates download links, installation instructions, checksums and GitHub release notes. Assets are uploaded to a draft before the release becomes public.
-5. Windows installer and Linux AppImage users can update in-app. Current unsigned macOS builds require manual upgrades.
+5. Windows installer, Linux AppImage, and macOS builds launched from Applications can update in-app. A copy running from the disk image cannot be replaced.
 
 A platform failure prevents publication. An upload failure leaves a draft that can be retried through Actions. Published versions cannot be overwritten; bump the version instead. CI uses the built-in `GITHUB_TOKEN`; no personal token is needed. Enable Actions and allow the workflow to write releases in repository settings.
 
