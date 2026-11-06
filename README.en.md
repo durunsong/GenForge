@@ -143,7 +143,7 @@ Settings → **API Providers**:
 ### Notes
 
 - **Base URL** should be the host root **without** `/v1` (e.g. `https://api.example.com`)
-- Preset models: `gpt-image-2.5-flare`, `gpt-image-2.5-sunburst`, `gpt-image-2`, `gpt-image-1.5`, `gemini-3.1-flash-image`, `gemini-3-pro-image`, `gemini-2.5-flash-image`, `grok-imagine-image-2.0`, `grok-imagine-image-quality`, `grok-imagine-image` (custom names allowed)
+- The model list is loaded from the current Base URL (`/v1/models`, or `/v1beta/models` for Gemini). A model ID can still be typed directly
 - With **Images API**: no reference → `/v1/images/generations`; with reference → `/v1/images/edits`
 - For Grok Imagine, set Base URL to `https://api.x.ai`. Resolution is 1K or 2K; a 4K choice is sent as 2K. `5:4` and `4:5` are sent as `4:3` and `3:4`. Reference images are JSON, with at most 5 per request. `quality` is sent only for `grok-imagine-image-2.0` (`low` at 1K, `medium` at 2K / 4K)
 - Add multiple providers and use “Random preferred” for rotation

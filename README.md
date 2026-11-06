@@ -143,7 +143,7 @@ npm start
 ### 配置要点
 
 - **Base URL** 填写域名根路径，不要带 `/v1`（例如 `https://api.example.com`）
-- 预设模型可选：`gpt-image-2.5-flare`、`gpt-image-2.5-sunburst`、`gpt-image-2`、`gpt-image-1.5`、`gemini-3.1-flash-image`、`gemini-3-pro-image`、`gemini-2.5-flash-image`、`grok-imagine-image-2.0`、`grok-imagine-image-quality`、`grok-imagine-image`，也可自定义
+- 模型列表从当前 Base URL 的 `/v1/models`（Gemini 渠道为 `/v1beta/models`）获取，也可直接填写模型 ID
 - 选择 **Images API** 后：无参考图走 `/v1/images/generations`，有参考图走 `/v1/images/edits`
 - Grok Imagine 的 Base URL 填 `https://api.x.ai`。分辨率只支持 1K / 2K，界面选 4K 时按 2K 请求；`5:4`、`4:5` 分别按 `4:3`、`3:4` 请求。参考图以 JSON 提交，单次最多 5 张。`quality` 只发给 `grok-imagine-image-2.0`（1K 为 `low`，2K / 4K 为 `medium`）
 - 可添加多个渠道，并选择「随机优选」自动轮询

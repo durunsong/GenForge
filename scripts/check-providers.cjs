@@ -30,7 +30,7 @@ const { chromium } = require('playwright');
     await choose('p-openai-mode', 'Images API');
     await page.locator('.provider-content').getByLabel('Base URL', { exact: true }).fill('https://images.test');
     await page.locator('.provider-content').getByLabel('API Key', { exact: true }).fill('test-only');
-    await choose('p-model-select', 'gpt-image-1.5');
+    await page.locator('#p-model').fill('gpt-image-1.5');
     assert.equal(await page.locator('.provider-content').getByLabel('模型名称', { exact: true }).inputValue(), 'gpt-image-1.5');
     await page.getByRole('button', { name: '保存渠道', exact: true }).click();
     assert.equal(await page.locator('.provider-item').count(), 1);
@@ -65,13 +65,16 @@ const { chromium } = require('playwright');
     await page.locator('.settings-header h2').click();
     assert.equal(await trigger('provider-select').getAttribute('aria-expanded'), 'false', 'Outside click dismisses the menu');
 
+    await page.evaluate(() => {
+      fillModelSelect(document.getElementById('p-model-select'), ['gemini-3-pro-image', 'gpt-image-2.5-flare'], '');
+    });
     await trigger('p-model-select').focus();
     await page.keyboard.press('g');
     await page.keyboard.press('Enter');
     assert.equal(await page.locator('#p-model').inputValue(), 'gpt-image-2.5-flare', 'Type-ahead must select a matching option');
     await page.getByRole('button', { name: '清空并新增渠道', exact: true }).click();
     assert.equal(await page.locator('#p-model').inputValue(), '');
-    assert.equal(await trigger('p-model-select').textContent(), '选择预设');
+    assert.equal(await trigger('p-model-select').textContent(), '选择模型');
     await page.reload();
     await page.waitForSelector('.session-item');
     await page.locator('.provider-collapse > summary').click();

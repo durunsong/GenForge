@@ -1106,10 +1106,15 @@ const XHSCreator = {
     this.modal.classList.remove("active");
   },
 
-  quickSelectModel(modelName) {
-    if (modelName) {
-      document.getElementById("xhs-text-model").value = modelName;
-    }
+  async fetchModels() {
+    await loadModelOptions({
+      button: document.getElementById("xhs-model-fetch"),
+      select: document.getElementById("xhs-text-model-select"),
+      host: document.getElementById("xhs-text-api-host").value,
+      key: document.getElementById("xhs-text-api-key").value,
+      type: "openai",
+      current: document.getElementById("xhs-text-model").value.trim(),
+    });
   },
 
   loadTextSettings() {
@@ -1118,8 +1123,7 @@ const XHSCreator = {
     document.getElementById("xhs-text-api-key").value =
       localStorage.getItem("xhs_text_api_key") || "";
     document.getElementById("xhs-text-model").value =
-      localStorage.getItem("xhs_text_model") || "gpt-4o";
-    this.loadCustomModels();
+      localStorage.getItem("xhs_text_model") || "";
   },
 
   saveTextSettings() {
@@ -1136,77 +1140,6 @@ const XHSCreator = {
       document.getElementById("xhs-text-model").value,
     );
     showToast("配置已保存", "success");
-  },
-
-  loadCustomModels() {
-    const customModels = JSON.parse(
-      localStorage.getItem("xhs_custom_models") || "[]",
-    );
-    const group = document.getElementById("xhs-custom-models-group");
-
-    if (customModels.length === 0) {
-      group.style.display = "none";
-      group.innerHTML = "";
-    } else {
-      group.style.display = "block";
-      group.replaceChildren(
-        ...customModels.map((model) => new Option(model, model)),
-      );
-    }
-  },
-
-  addCustomModel() {
-    const modelName = document.getElementById("xhs-text-model").value.trim();
-
-    if (!modelName) {
-      showToast("请先输入模型名称", "warning");
-      return;
-    }
-
-    const customModels = JSON.parse(
-      localStorage.getItem("xhs_custom_models") || "[]",
-    );
-
-    if (customModels.includes(modelName)) {
-      showToast("该模型已存在于自定义列表", "warning");
-      return;
-    }
-
-    customModels.push(modelName);
-    localStorage.setItem("xhs_custom_models", JSON.stringify(customModels));
-
-    this.loadCustomModels();
-    showToast(`已添加 "${modelName}" 到自定义模型`, "success");
-  },
-
-  removeCustomModel() {
-    const modelName = document.getElementById("xhs-text-model").value.trim();
-
-    if (!modelName) {
-      showToast("请先输入或选择要删除的模型名称", "warning");
-      return;
-    }
-
-    const customModels = JSON.parse(
-      localStorage.getItem("xhs_custom_models") || "[]",
-    );
-    const index = customModels.indexOf(modelName);
-
-    if (index === -1) {
-      showToast("该模型不在自定义列表中", "warning");
-      return;
-    }
-
-    if (!confirm(`确定要删除自定义模型 "${modelName}" 吗？`)) {
-      return;
-    }
-
-    customModels.splice(index, 1);
-    localStorage.setItem("xhs_custom_models", JSON.stringify(customModels));
-
-    this.loadCustomModels();
-    document.getElementById("xhs-text-model").value = "";
-    showToast(`已删除 "${modelName}"`, "success");
   },
 
   handleFiles(files) {
@@ -1247,12 +1180,26 @@ const XHSCreator = {
     });
   },
   renderPreviews() {
-    this.previewBox.innerHTML = this.refImages
-      .map(
-        (img, i) =>
-          `<div class="xhs-preview-item"><img class="xhs-preview-img" src="${img.src}"><div class="xhs-preview-del" onclick="XHSCreator.removeImg(${i})">×</div></div>`,
-      )
-      .join("");
+    this.previewBox.replaceChildren(
+      ...this.refImages.map((img, i) => {
+        const item = document.createElement("div");
+        item.className = "xhs-preview-item";
+        const image = document.createElement("img");
+        image.className = "xhs-preview-img";
+        image.src = img.src;
+        image.alt = "参考图";
+        image.onclick = () => openLightbox(img.src);
+        const remove = document.createElement("div");
+        remove.className = "xhs-preview-del";
+        remove.textContent = "×";
+        remove.onclick = (event) => {
+          event.stopPropagation();
+          this.removeImg(i);
+        };
+        item.append(image, remove);
+        return item;
+      }),
+    );
   },
   removeImg(i) {
     this.refImages.splice(i, 1);
@@ -2540,6 +2487,94 @@ const SelectUI = {
   },
 };
 
+function extractModelIds(payload) {
+  const list = Array.isArray(payload)
+    ? payload
+    : (payload && (payload.data || payload.models)) || [];
+  const ids = [];
+  if (!Array.isArray(list)) return ids;
+  for (const item of list) {
+    const raw =
+      typeof item === "string"
+        ? item
+        : (item && (item.id || item.name || item.model)) || "";
+    const id = String(raw)
+      .replace(/^models\//, "")
+      .trim();
+    if (id && !ids.includes(id)) ids.push(id);
+  }
+  ids.sort((a, b) => a.localeCompare(b));
+  return ids;
+}
+
+function fillModelSelect(select, ids, currentValue) {
+  if (!select) return;
+  const placeholder = document.createElement("option");
+  placeholder.value = "";
+  placeholder.textContent = ids.length ? "选择模型" : "未获取到模型";
+  select.replaceChildren(placeholder, ...ids.map((id) => new Option(id, id)));
+  select.value = ids.includes(currentValue) ? currentValue : "";
+  SelectUI.sync();
+}
+
+async function fetchModelIds({ host, key, type }) {
+  const base = String(host || "")
+    .trim()
+    .replace(/\/+$/, "")
+    .replace(/\/v1beta$/, "")
+    .replace(/\/v1$/, "");
+  if (!base || !String(key || "").trim())
+    throw new Error("请先填写 Base URL 和 API Key");
+  const token = String(key).trim();
+  const openaiUrl = `${base}/v1/models`;
+  const geminiUrl = `${base}/v1beta/models`;
+  const attempts =
+    type === "gemini"
+      ? [
+          [geminiUrl, { "x-goog-api-key": token }],
+          [openaiUrl, { Authorization: `Bearer ${token}` }],
+        ]
+      : [
+          [openaiUrl, { Authorization: `Bearer ${token}` }],
+          [geminiUrl, { "x-goog-api-key": token }],
+        ];
+  let lastError = "没有返回模型";
+  for (const [url, headers] of attempts) {
+    try {
+      const res = await nativeFetch(url, { headers });
+      if (!res.ok) {
+        lastError = `HTTP ${res.status}`;
+        continue;
+      }
+      const ids = extractModelIds(await res.json());
+      if (ids.length) return ids;
+      lastError = "接口没有返回模型";
+    } catch (error) {
+      lastError = error?.message || "网络错误";
+    }
+  }
+  throw new Error(lastError);
+}
+
+async function loadModelOptions({ button, select, host, key, type, current }) {
+  if (button) {
+    button.disabled = true;
+    button.textContent = "获取中";
+  }
+  try {
+    const ids = await fetchModelIds({ host, key, type });
+    fillModelSelect(select, ids, current);
+    showToast(`已获取 ${ids.length} 个模型`, "success");
+  } catch (error) {
+    showToast(`获取模型失败：${error.message || error}`, "error", 3000);
+  } finally {
+    if (button) {
+      button.disabled = false;
+      button.textContent = "获取模型";
+    }
+  }
+}
+
 const ProviderManager = {
   providers: [],
   activeId: "random",
@@ -2689,6 +2724,16 @@ const ProviderManager = {
     document.getElementById("provider-form-title").textContent = "新增渠道";
     document.getElementById("provider-delete-btn").disabled = true;
     SelectUI.sync();
+  },
+  fetchModels() {
+    return loadModelOptions({
+      button: document.getElementById("p-model-fetch"),
+      select: document.getElementById("p-model-select"),
+      host: document.getElementById("p-host").value,
+      key: document.getElementById("p-key").value,
+      type: document.getElementById("p-type").value,
+      current: document.getElementById("p-model").value.trim(),
+    });
   },
   save() {
     const id = document.getElementById("p-id").value;
@@ -3031,6 +3076,11 @@ async function loadSession(sessionId) {
   if (window.innerWidth <= 768) closeAllSidebars();
 }
 let creatingSession = false;
+function focusComposer() {
+  requestAnimationFrame(() => {
+    document.getElementById("user-input")?.focus();
+  });
+}
 async function createNewSession(title = "新对话") {
   if (creatingSession) return currentSessionId;
   creatingSession = true;
@@ -3052,6 +3102,7 @@ async function createNewSession(title = "新对话") {
     return id;
   } finally {
     creatingSession = false;
+    focusComposer();
   }
 }
 async function removeSession(id) {
@@ -4721,11 +4772,58 @@ UI.textarea.addEventListener("input", function () {
   adjustTextareaHeight();
   checkInput();
 });
+function shouldSendOnEnter(event, composing, swallowEnter) {
+  if (event.key !== "Enter" || event.shiftKey) return false;
+  if (event.isComposing || composing || event.keyCode === 229 || swallowEnter)
+    return false;
+  return true;
+}
+let imeComposing = false;
+let imeSwallowEnter = false;
+let imeSwallowTimer = 0;
+let imeSendGeneration = 0;
+function cancelPendingSend() {
+  imeSendGeneration += 1;
+}
+UI.textarea.addEventListener("compositionstart", () => {
+  cancelPendingSend();
+  imeComposing = true;
+  imeSwallowEnter = false;
+  clearTimeout(imeSwallowTimer);
+});
+UI.textarea.addEventListener("compositionend", () => {
+  // macOS 确认候选词时，回车可能发生在 compositionend 之前或之后，且 isComposing 已经是 false。
+  cancelPendingSend();
+  imeComposing = false;
+  imeSwallowEnter = true;
+  clearTimeout(imeSwallowTimer);
+  imeSwallowTimer = setTimeout(() => {
+    imeSwallowEnter = false;
+  }, 500);
+});
 UI.textarea.addEventListener("keydown", (e) => {
-  if (e.key === "Enter" && !e.shiftKey) {
-    e.preventDefault();
-    sendMessage();
+  const swallowEnter = imeSwallowEnter;
+  if (!shouldSendOnEnter(e, imeComposing, swallowEnter)) {
+    if (
+      e.key === "Enter" &&
+      !e.shiftKey &&
+      swallowEnter &&
+      !e.isComposing &&
+      !imeComposing &&
+      e.keyCode !== 229
+    ) {
+      imeSwallowEnter = false;
+      clearTimeout(imeSwallowTimer);
+    }
+    return;
   }
+  e.preventDefault();
+  const generation = ++imeSendGeneration;
+  setTimeout(() => {
+    if (generation !== imeSendGeneration || imeComposing || imeSwallowEnter)
+      return;
+    sendMessage();
+  }, 0);
 });
 
 // 粘贴图片支持
@@ -4912,8 +5010,21 @@ function renderPreviews() {
     state.images.forEach((img, i) => {
       const div = document.createElement("div");
       div.className = "preview-item";
-      div.style.backgroundImage = `url(${img.preview})`;
-      div.innerHTML = `<div class="preview-close" onclick="state.images.splice(${i},1);renderPreviews();checkInput()">×</div>`;
+      const image = document.createElement("img");
+      image.className = "preview-thumb";
+      image.src = img.preview;
+      image.alt = "参考图";
+      image.onclick = () => openLightbox(img.preview);
+      const close = document.createElement("div");
+      close.className = "preview-close";
+      close.textContent = "×";
+      close.onclick = (event) => {
+        event.stopPropagation();
+        state.images.splice(i, 1);
+        renderPreviews();
+        checkInput();
+      };
+      div.append(image, close);
       UI.previewArea.appendChild(div);
     });
   } else UI.previewArea.classList.remove("has-images");
