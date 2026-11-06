@@ -216,60 +216,95 @@ const nativeFetch = window.fetch.bind(window);
 // 文件系统管理器 - 自动保存图片到本地目录
 const FileSystemManager = {
   directoryHandle: null,
+  savePath: "",
   isEnabled: false,
 
   // 检查浏览器是否支持 File System Access API
   isSupported() {
-    return "showDirectoryPicker" in window;
+    return (
+      "showDirectoryPicker" in window || !!window.desktop?.pickSaveDirectory
+    );
   },
 
-  // 初始化
+  canSave() {
+    return this.isEnabled && !!(this.savePath || this.directoryHandle);
+  },
+
+  showSavedPath(text) {
+    const pathDiv = document.getElementById("selected-dir-path");
+    const pathText = document.getElementById("dir-path-text");
+    if (!pathDiv || !pathText || !text) return;
+    pathText.textContent = text;
+    pathText.title = text;
+    pathDiv.style.display = "block";
+  },
+
+  enableAutoSave() {
+    const autoSaveToggle = document.getElementById("auto-save-toggle");
+    if (autoSaveToggle) autoSaveToggle.checked = true;
+    this.isEnabled = true;
+    localStorage.setItem("auto_save_enabled", "true");
+  },
+
+  // 初始化。目录保存在本机，所有对话共用，不随新建对话重置。
   init() {
     const autoSaveToggle = document.getElementById("auto-save-toggle");
+    this.savePath = localStorage.getItem("save_directory") || "";
+    if (this.savePath) this.showSavedPath(this.savePath);
     if (autoSaveToggle) {
-      // 加载保存的设置
-      const saved = localStorage.getItem("auto_save_enabled");
-      if (saved === "true") {
-        // 检查目录句柄是否存在（刷新页面后会丢失）
-        if (!this.directoryHandle) {
-          // 目录句柄丢失，重置状态并提示用户
-          console.warn("⚠️ 目录句柄丢失，需要重新选择目录");
-          localStorage.removeItem("auto_save_enabled");
-          autoSaveToggle.checked = false;
-          this.isEnabled = false;
-
-          // 隐藏目录路径显示
-          const pathDiv = document.getElementById("selected-dir-path");
-          if (pathDiv) pathDiv.style.display = "none";
-
-          // 延迟显示提示，避免页面加载时过多提示
-          setTimeout(() => {
-            showToast("自动保存已重置，请重新选择保存目录", "warning", 3000);
-          }, 1000);
-        } else {
-          autoSaveToggle.checked = true;
-          this.isEnabled = true;
-        }
+      const enabled = localStorage.getItem("auto_save_enabled") === "true";
+      autoSaveToggle.checked = enabled && !!this.savePath;
+      this.isEnabled = autoSaveToggle.checked;
+      if (enabled && !this.savePath && !this.directoryHandle) {
+        localStorage.removeItem("auto_save_enabled");
       }
 
-      // 监听开关变化
       autoSaveToggle.addEventListener("change", (e) => {
-        this.isEnabled = e.target.checked;
-        localStorage.setItem("auto_save_enabled", e.target.checked);
-
-        if (e.target.checked && !this.directoryHandle) {
+        if (e.target.checked && !this.savePath && !this.directoryHandle) {
           showToast("请先选择保存目录", "warning");
           e.target.checked = false;
           this.isEnabled = false;
           localStorage.removeItem("auto_save_enabled");
+          return;
         }
+        this.isEnabled = e.target.checked;
+        localStorage.setItem("auto_save_enabled", e.target.checked);
+      });
+    }
+    if (this.savePath && window.desktop?.saveDirectoryExists) {
+      const remembered = this.savePath;
+      void window.desktop.saveDirectoryExists(remembered).then((exists) => {
+        if (exists || this.savePath !== remembered) return;
+        this.savePath = "";
+        this.isEnabled = false;
+        localStorage.removeItem("save_directory");
+        localStorage.removeItem("auto_save_enabled");
+        const toggle = document.getElementById("auto-save-toggle");
+        if (toggle) toggle.checked = false;
+        const pathDiv = document.getElementById("selected-dir-path");
+        if (pathDiv) pathDiv.style.display = "none";
+        showToast("上次的保存目录已不存在，请重新选择", "warning", 3000);
       });
     }
   },
 
   // 选择目录
   async selectDirectory() {
-    if (!this.isSupported()) {
+    if (window.desktop?.pickSaveDirectory) {
+      try {
+        const dir = await window.desktop.pickSaveDirectory();
+        if (!dir) return;
+        this.savePath = dir;
+        localStorage.setItem("save_directory", dir);
+        this.showSavedPath(dir);
+        this.enableAutoSave();
+        showToast("目录已记住，所有对话都会保存到这里", "success");
+      } catch (error) {
+        showToast("选择目录失败: " + error.message, "error");
+      }
+      return;
+    }
+    if (!("showDirectoryPicker" in window)) {
       showToast(
         "您的浏览器不支持此功能，请使用 Chrome 86+ 或 Edge 86+",
         "error",
@@ -284,23 +319,10 @@ const FileSystemManager = {
         mode: "readwrite",
       });
 
-      // 显示选择的目录路径
-      const pathDiv = document.getElementById("selected-dir-path");
-      const pathText = document.getElementById("dir-path-text");
-      if (pathDiv && pathText) {
-        pathText.textContent = this.directoryHandle.name;
-        pathDiv.style.display = "block";
-      }
+      this.showSavedPath(this.directoryHandle.name);
 
       showToast("目录选择成功！", "success");
-
-      // 自动启用自动保存
-      const autoSaveToggle = document.getElementById("auto-save-toggle");
-      if (autoSaveToggle && !autoSaveToggle.checked) {
-        autoSaveToggle.checked = true;
-        this.isEnabled = true;
-        localStorage.setItem("auto_save_enabled", "true");
-      }
+      this.enableAutoSave();
     } catch (error) {
       if (error.name !== "AbortError") {
         console.error("选择目录失败:", error);
@@ -316,9 +338,25 @@ const FileSystemManager = {
     console.log("  - directoryHandle:", this.directoryHandle);
     console.log("  - filename:", filename);
 
-    if (!this.isEnabled || !this.directoryHandle) {
+    if (!this.canSave()) {
       console.log("❌ 保存条件不满足");
       return false;
+    }
+
+    if (this.savePath && window.desktop?.saveImageFile) {
+      try {
+        const result = await window.desktop.saveImageFile({
+          directory: this.savePath,
+          filename,
+          dataUrl: base64Data,
+        });
+        if (!result?.ok) throw new Error(result?.message || "保存失败");
+        return true;
+      } catch (error) {
+        console.error("❌ 保存文件失败:", error);
+        showToast("保存文件失败: " + error.message, "error");
+        return false;
+      }
     }
 
     try {
@@ -3087,14 +3125,19 @@ async function createNewSession(title = "新对话") {
   try {
     if (title === "新对话") {
       const sessions = await getAllSessions();
+      const blanks = [];
       for (const session of sessions) {
         if (activeGenerations.has(session.id)) continue;
         const messages = await getSessionMessages(session.id);
-        if (messages.length === 0) {
-          if (session.id !== currentSessionId) await loadSession(session.id);
-          else showToast("当前已是新对话", "info");
-          return session.id;
-        }
+        if (messages.length === 0) blanks.push(session);
+      }
+      if (blanks.length >= 3) {
+        const currentBlank = blanks.find(
+          (session) => session.id === currentSessionId,
+        );
+        if (currentBlank) showToast("当前已是新对话", "info");
+        else await loadSession(blanks[0].id);
+        return (currentBlank || blanks[0]).id;
       }
     }
     const id = await createSession(title);
@@ -4269,10 +4312,7 @@ async function processGeneration(
           const filename = `genforge_${progressId}_${generatedImages.length}.png`;
 
           // 自动保存到本地目录
-          if (
-            FileSystemManager.isEnabled &&
-            FileSystemManager.directoryHandle
-          ) {
+          if (FileSystemManager.canSave()) {
             console.log("🎨 图片生成完成，开始自动保存...");
             FileSystemManager.saveImageToDirectory(fullBase64, filename).then(
               (success) => {
@@ -4310,11 +4350,7 @@ async function processGeneration(
             }
 
             // 自动保存到本地目录（仅 base64 图片）
-            if (
-              isBase64 &&
-              FileSystemManager.isEnabled &&
-              FileSystemManager.directoryHandle
-            ) {
+            if (isBase64 && FileSystemManager.canSave()) {
               console.log("🎨 Markdown 图片生成完成，开始自动保存...");
               FileSystemManager.saveImageToDirectory(safeUrl, filename).then(
                 (success) => {
@@ -4611,7 +4647,7 @@ function downloadImage(base64Data, filename) {
   );
 
   // 优先尝试自动保存到本地目录
-  if (FileSystemManager.isEnabled && FileSystemManager.directoryHandle) {
+  if (FileSystemManager.canSave()) {
     console.log("✅ 满足自动保存条件，开始保存...");
     FileSystemManager.saveImageToDirectory(base64Data, filename).then(
       (success) => {

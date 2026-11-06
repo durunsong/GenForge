@@ -11,17 +11,28 @@ declare global {
         node: string;
       };
       getAppVersion: () => Promise<string>;
-      checkForUpdates: () => Promise<{ ok: boolean; version?: string; message?: string }>;
+      checkForUpdates: () => Promise<{
+        ok: boolean;
+        version?: string;
+        message?: string;
+      }>;
       downloadUpdate: () => Promise<{ ok: boolean; message?: string }>;
       installUpdate: () => Promise<{ ok: boolean; message?: string }>;
+      pickSaveDirectory: () => Promise<string | null>;
+      saveDirectoryExists: (directory: string) => Promise<boolean>;
+      saveImageFile: (payload: {
+        directory: string;
+        filename: string;
+        dataUrl: string;
+      }) => Promise<{ ok: boolean; message?: string }>;
       onUpdateEvent: (
         channel:
-          | 'update:checking'
-          | 'update:available'
-          | 'update:not-available'
-          | 'update:progress'
-          | 'update:downloaded'
-          | 'update:error',
+          | "update:checking"
+          | "update:available"
+          | "update:not-available"
+          | "update:progress"
+          | "update:downloaded"
+          | "update:error",
         listener: (payload?: unknown) => void,
       ) => () => void;
     };
